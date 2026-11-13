@@ -26,6 +26,7 @@ A small in-memory Java library for a live football World Cup scoreboard: start a
 
 - **Keep it plain.** A tournament has about 100 matches (104 in the 2026 format), so a simple in-memory list is enough. There is no id type, no timestamps and no clock.
 - **Start order instead of time.** Matches are stored in start order, so the tie-break is the reverse of storage order. It does not depend on clock resolution.
+- **One list.** Matches live in a single `ArrayList` in start order. A pair resolves by scanning backwards to its latest match, which is the in-progress one if there is one, so no match id is needed.
 - **Finished matches are kept.** Without them, "finished" cannot be told apart from "never started", so the scoreboard could not report the right error. A pair therefore resolves to its in-progress match first, then to a finished one, because the same pair can meet twice.
 - **Errors by cause.** Errors that happen in normal use, such as a late update after a match finished, are checked, so callers must handle them. Caller bugs such as a negative score are unchecked. Reads such as `findMatch` return an empty `Optional` instead of throwing, because "not playing" is a valid answer to a question and not a failed command.
 - **Immutable output.** The summary is a separate record without the internal status, so callers cannot change the scoreboard through it, and later updates do not change a summary already returned.

@@ -65,3 +65,9 @@
 - Context: Supersedes decision #4, which left open whether the display name keeps surrounding spaces.
 - Decision: Names must be non-null and non-blank, and home and away must differ after normalisation. Lookups and checks use `strip()` and `toLowerCase(Locale.ROOT)`, while the match keeps the stripped name in its original casing for display.
 - Consequences: Callers need not care about casing or surrounding spaces. There is no list of valid teams and no accent normalisation.
+
+## 13. Store matches in one list and resolve a pair by its latest match
+- Status: accepted
+- Context: The same pair can have several matches, but at most one of them is in progress (per decision #11).
+- Decision: Matches are kept in a single `ArrayList` of immutable matches in start order, and finished matches are never removed (per decisions #1 and #2). A pair resolves by scanning backwards to its latest match, which is the in-progress one if any exists.
+- Consequences: No match id is needed, and lookups are linear, which is fine for about 100 matches. The summary filters in-progress matches and sorts them on read.

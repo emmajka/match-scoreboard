@@ -164,4 +164,39 @@ Summary:
 
 Fixed the README inaccuracies in place. In `docs/DECISIONS.md` added decisions #11 and #12, which supersede #3 and #4, and changed only the status of #3 and #4. Nothing was committed.
 
+### 12: Discussion of match storage
+Prompt:
+
+```text
+let's move on with to implementation details.
+
+Let's discuss first the storage, how we will store the matches. Per requirements solution ought to be simple so an in-memory data structure ought to be sufficient. I was thinking of using either a map structure (HashMap, LinkedHashMap) or a tree structure (TreeMap, a variation of it?).
+
+Let us consider the access patterns and structure of our matches. 
+
+* we ought to be able to identify match uniquely. We can have only a single in-progress match for a given team per our decisions. We can have multiple finished matches for a given team and we ought to be able to identify match start order.
+* IF we consider that a match is identified by team pair like `Spain` and `Germany` then we should add an additional descriptor-like value to match ID so we could differentiate between Spain's and Germany's first group match and second match after group section. Or perhaps matches should be stored in a different manner or retrieved differently or so. 
+* We ought to be able to retrieve all in-progress games per requirement, filtering/ignoring out finished ones.
+
+
+Start discussion on the topic, analyze our requirements, task description and decisions documented. Find potential solution and conflicts if they exist.
+```
+
+Summary:
+
+Analyzed storage options (list, LinkedHashMap, HashMap, TreeMap, split structures) against the task and decisions, and recommended a single start-ordered list with a reverse scan. No code or decision changes; the discussion continues.
+
+### 13: Documenting the storage decision
+Prompt:
+
+```text
+Considering the size of data, as in approximately 100 entries., let us continue with using an ArrayList. It is plain solution, enough for our task implementation.
+
+Document the decision.
+```
+
+Summary:
+
+Added decision #13 (single `ArrayList` in start order, a pair resolves to its latest match) to `docs/DECISIONS.md` and a matching reasoning bullet to `README.md`. Nothing was committed.
+
 ## Artifacts
