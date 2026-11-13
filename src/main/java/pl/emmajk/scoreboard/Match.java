@@ -43,6 +43,20 @@ record Match(String homeTeam, String awayTeam, int homeScore, int awayScore, Mat
     }
 
     /**
+     * Returns the sum of both team scores.
+     */
+    int totalScore() {
+        return homeScore + awayScore;
+    }
+
+    /**
+     * Returns the match as seen by the caller.
+     */
+    MatchSummary toSummary() {
+        return new MatchSummary(homeTeam, awayTeam, homeScore, awayScore);
+    }
+
+    /**
      * Returns a copy of the match marked as finished.
      */
     Match finished() {

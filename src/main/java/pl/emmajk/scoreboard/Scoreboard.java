@@ -1,6 +1,7 @@
 package pl.emmajk.scoreboard;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -78,7 +79,11 @@ public final class Scoreboard {
      * Returns in-progress matches, highest total score first, ties by most recently started.
      */
     public List<MatchSummary> getSummary() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return matches.reversed().stream()
+                .filter(Match::isInProgress)
+                .sorted(Comparator.comparingInt(Match::totalScore).reversed())
+                .map(Match::toSummary)
+                .toList();
     }
 
     /**

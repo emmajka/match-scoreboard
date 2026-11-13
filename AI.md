@@ -276,4 +276,15 @@ Summary:
 
 Refactored `Scoreboard`: extracted `validatePair` and `indexOfInProgress` and used them in `startMatch`, `updateScore` and `finishMatch`. Behaviour is unchanged and the tests were not modified; `mvn clean verify` passes with 92 tests. Nothing was committed.
 
+### 21: getSummary implementation
+Prompt:
+
+```text
+implement getSummary now.
+```
+
+Summary:
+
+The user had inlined `indexOfLatest` into `indexOfInProgress` by hand. Wrote `getSummary` tests first (10 of 11 new cases failed), then implemented `getSummary` as a reversed, filtered, stably sorted stream, with `Match.totalScore()` and `Match.toSummary()`. The new tests also read back what `startMatch`, `updateScore` and `finishMatch` stored. `mvn clean verify` passes; nothing was committed.
+
 ## Artifacts
