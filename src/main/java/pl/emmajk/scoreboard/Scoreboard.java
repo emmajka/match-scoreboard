@@ -23,17 +23,9 @@ public final class Scoreboard {
      * @throws IllegalArgumentException    if a name is blank or both teams are the same
      */
     public void startMatch(String homeTeam, String awayTeam) throws TeamAlreadyPlayingException {
-        Objects.requireNonNull(homeTeam, "homeTeam must not be null");
-        Objects.requireNonNull(awayTeam, "awayTeam must not be null");
+        validatePair(homeTeam, awayTeam);
         String homeLookupKey = Match.lookupKey(homeTeam);
         String awayLookupKey = Match.lookupKey(awayTeam);
-        if (homeLookupKey.isEmpty() || awayLookupKey.isEmpty()) {
-            throw new IllegalArgumentException("Team names must not be blank");
-        }
-
-        if (homeLookupKey.equals(awayLookupKey)) {
-            throw new IllegalArgumentException("A team cannot play itself: " + homeTeam);
-        }
 
         for (Match match : matches) {
             if (match.isInProgress() && match.isPlayedBy(homeLookupKey)) {
@@ -57,40 +49,13 @@ public final class Scoreboard {
      */
     public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore)
             throws MatchNotFoundException, MatchAlreadyFinishedException {
-        Objects.requireNonNull(homeTeam, "homeTeam must not be null");
-        Objects.requireNonNull(awayTeam, "awayTeam must not be null");
-        String homeLookupKey = Match.lookupKey(homeTeam);
-        String awayLookupKey = Match.lookupKey(awayTeam);
-        if (homeLookupKey.isEmpty() || awayLookupKey.isEmpty()) {
-            throw new IllegalArgumentException("Team names must not be blank");
-        }
-
-        if (homeLookupKey.equals(awayLookupKey)) {
-            throw new IllegalArgumentException("A team cannot play itself: " + homeTeam);
-        }
-
+        validatePair(homeTeam, awayTeam);
         if (homeScore < 0 || awayScore < 0) {
             throw new IllegalArgumentException("Scores must not be negative");
         }
 
-        int index = -1;
-        for (int i = matches.size() - 1; i >= 0; i--) {
-            if (matches.get(i).isPair(homeLookupKey, awayLookupKey)) {
-                index = i;
-                break;
-            }
-        }
-
-        if (index < 0) {
-            throw new MatchNotFoundException(homeTeam, awayTeam);
-        }
-
-        Match match = matches.get(index);
-        if (!match.isInProgress()) {
-            throw new MatchAlreadyFinishedException(homeTeam, awayTeam);
-        }
-
-        matches.set(index, match.withScore(homeScore, awayScore));
+        int index = indexOfInProgress(homeTeam, awayTeam);
+        matches.set(index, matches.get(index).withScore(homeScore, awayScore));
     }
 
     /**
@@ -103,7 +68,10 @@ public final class Scoreboard {
      */
     public void finishMatch(String homeTeam, String awayTeam)
             throws MatchNotFoundException, MatchAlreadyFinishedException {
-        throw new UnsupportedOperationException("Not implemented yet");
+        validatePair(homeTeam, awayTeam);
+
+        int index = indexOfInProgress(homeTeam, awayTeam);
+        matches.set(index, matches.get(index).finished());
     }
 
     /**
@@ -124,14 +92,42 @@ public final class Scoreboard {
     }
 
     /**
-     * Returns the index of the latest match of the pair, given as lookup keys, or -1 if there is none.
+     * Checks that a team pair has no null or blank name and is not the same team twice.
      */
-    private int indexOfLatest(String homeLookupKey, String awayLookupKey) {
+    private static void validatePair(String homeTeam, String awayTeam) {
+        Objects.requireNonNull(homeTeam, "home team must not be null");
+        Objects.requireNonNull(awayTeam, "away team must not be null");
+        String homeLookupKey = Match.lookupKey(homeTeam);
+        String awayLookupKey = Match.lookupKey(awayTeam);
+        if (homeLookupKey.isEmpty() || awayLookupKey.isEmpty()) {
+            throw new IllegalArgumentException("Team names must not be blank");
+        }
+        if (homeLookupKey.equals(awayLookupKey)) {
+            throw new IllegalArgumentException("A team cannot play itself");
+        }
+    }
+
+    /**
+     * Returns the index of the in-progress match of the pair, or throws if the pair has none.
+     */
+    private int indexOfInProgress(String homeTeam, String awayTeam)
+            throws MatchNotFoundException, MatchAlreadyFinishedException {
+        int index = -1;
         for (int i = matches.size() - 1; i >= 0; i--) {
-            if (matches.get(i).isPair(homeLookupKey, awayLookupKey)) {
-                return i;
+            if (matches.get(i).isPair(Match.lookupKey(homeTeam), Match.lookupKey(awayTeam))) {
+                index = i;
+                break;
             }
         }
-        return -1;
+
+        if (index < 0) {
+            throw new MatchNotFoundException(homeTeam, awayTeam);
+        }
+
+        if (!matches.get(index).isInProgress()) {
+            throw new MatchAlreadyFinishedException(homeTeam, awayTeam);
+        }
+
+        return index;
     }
 }

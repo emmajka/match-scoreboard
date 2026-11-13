@@ -274,4 +274,201 @@ class ScoreboardSpec extends Specification {
         then:
         noExceptionThrown()
     }
+
+    def "given a null home team when calling finishMatch then should throw a NullPointerException"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.finishMatch(null, "Brazil")
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def "given a null away team when calling finishMatch then should throw a NullPointerException"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.finishMatch("Spain", null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
+    def "finishMatch - dataset tests - blank names"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.finishMatch(home, away)
+
+        then:
+        thrown(IllegalArgumentException)
+
+        where:
+        home    | away
+        ""      | "Brazil"
+        "   "   | "Brazil"
+        "Spain" | ""
+        "Spain" | "   "
+        ""      | ""
+    }
+
+    def "finishMatch - dataset tests - same team"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.finishMatch(home, away)
+
+        then:
+        thrown(IllegalArgumentException)
+
+        where:
+        home    | away
+        "Spain" | "Spain"
+        "Spain" | "spain"
+        "Spain" | " SPAIN "
+    }
+
+    def "given an empty scoreboard when calling finishMatch then should throw a MatchNotFoundException"() {
+        when:
+        scoreboard.finishMatch("Spain", "Brazil")
+
+        then:
+        thrown(MatchNotFoundException)
+    }
+
+    def "finishMatch - dataset tests - match not found"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.finishMatch(home, away)
+
+        then:
+        thrown(MatchNotFoundException)
+
+        where:
+        home      | away
+        "Brazil"  | "Spain"
+        "Spain"   | "Italy"
+        "Italy"   | "Brazil"
+        "Germany" | "France"
+    }
+
+    def "finishMatch - dataset tests - success scenarios"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.finishMatch(home, away)
+
+        then:
+        noExceptionThrown()
+
+        where:
+        home      | away
+        "Spain"   | "Brazil"
+        "spain"   | "BRAZIL"
+        " Spain " | " Brazil "
+    }
+
+    def "given an already finished match when calling finishMatch then should throw a MatchAlreadyFinishedException"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+        scoreboard.finishMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.finishMatch("Spain", "Brazil")
+
+        then:
+        thrown(MatchAlreadyFinishedException)
+    }
+
+    def "given a finished match when calling updateScore then should throw a MatchAlreadyFinishedException"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+        scoreboard.finishMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.updateScore("Spain", "Brazil", 1, 0)
+
+        then:
+        thrown(MatchAlreadyFinishedException)
+    }
+
+    def "given a finished pair and another match of its team when calling finishMatch then should throw a MatchAlreadyFinishedException"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+        scoreboard.finishMatch("Spain", "Brazil")
+        scoreboard.startMatch("Spain", "Italy")
+
+        when:
+        scoreboard.finishMatch("Spain", "Brazil")
+
+        then:
+        thrown(MatchAlreadyFinishedException)
+    }
+
+    def "given a finished match when calling startMatch should let its teams play other matches"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+        scoreboard.finishMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.startMatch("Spain", "Italy")
+        scoreboard.startMatch("Germany", "Brazil")
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "given a finished match when calling startMatch should let the same pair play again"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+        scoreboard.finishMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.startMatch("Spain", "Brazil")
+
+        then:
+        noExceptionThrown()
+    }
+
+    def "given a rematch when calling updateScore and finishMatch should address the new match"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+        scoreboard.finishMatch("Spain", "Brazil")
+        scoreboard.startMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.updateScore("Spain", "Brazil", 1, 0)
+        scoreboard.finishMatch("Spain", "Brazil")
+
+        then:
+        noExceptionThrown()
+
+        when:
+        scoreboard.updateScore("Spain", "Brazil", 2, 0)
+
+        then:
+        thrown(MatchAlreadyFinishedException)
+    }
+
+    def "given two matches when calling finishMatch should keep the other match in progress"() {
+        given:
+        scoreboard.startMatch("Spain", "Brazil")
+        scoreboard.startMatch("Germany", "France")
+        scoreboard.finishMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.updateScore("Germany", "France", 1, 0)
+        scoreboard.startMatch("Germany", "Italy")
+
+        then:
+        thrown(TeamAlreadyPlayingException)
+    }
 }

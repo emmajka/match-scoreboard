@@ -41,4 +41,11 @@ record Match(String homeTeam, String awayTeam, int homeScore, int awayScore, Mat
     Match withScore(int newHomeScore, int newAwayScore) {
         return new Match(homeTeam, awayTeam, newHomeScore, newAwayScore, status);
     }
+
+    /**
+     * Returns a copy of the match marked as finished.
+     */
+    Match finished() {
+        return new Match(homeTeam, awayTeam, homeScore, awayScore, MatchStatus.FINISHED);
+    }
 }

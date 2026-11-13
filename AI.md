@@ -254,4 +254,26 @@ Summary:
 
 The user had already restored display names in `Match` by hand. Wrote `updateScore` tests first (26 new cases failed), then implemented `updateScore` with the `Match` helpers `isPair` and `withScore` and the `Scoreboard` helpers `validatePair` and `indexOfLatest`; `startMatch` now uses `validatePair`. `mvn clean verify` passes; nothing was committed.
 
+### 19: finishMatch implementation
+Prompt:
+
+```text
+let's move on now to the `finishMatch` method.
+```
+
+Summary:
+
+The user had inlined the `validatePair` and lookup helpers back into `startMatch` and `updateScore` by hand. Wrote `finishMatch` tests first (25 new cases failed), then implemented `finishMatch` in the same inline style, using the existing `indexOfLatest`, plus `Match.finished()`. The new tests also cover the already-finished branch of `updateScore` and restarting a pair. `mvn clean verify` passes; nothing was committed.
+
+### 20: Extracting helpers
+Prompt:
+
+```text
+Extract helpers
+```
+
+Summary:
+
+Refactored `Scoreboard`: extracted `validatePair` and `indexOfInProgress` and used them in `startMatch`, `updateScore` and `finishMatch`. Behaviour is unchanged and the tests were not modified; `mvn clean verify` passes with 92 tests. Nothing was committed.
+
 ## Artifacts
