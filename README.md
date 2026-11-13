@@ -2,7 +2,26 @@
 
 A small in-memory Java library for a live football World Cup scoreboard: start a match, update its score, finish it, and get a summary of matches in progress.
 
-**Status:** design agreed, implementation pending. This README states the assumptions the implementation will follow and will be updated with the code. Most assumptions are backed by an entry in [docs/DECISIONS.md](docs/DECISIONS.md).
+Design decisions are recorded in [docs/DECISIONS.md](docs/DECISIONS.md), and most assumptions below are backed by an entry there.
+
+## Usage
+
+```java
+Scoreboard scoreboard = new Scoreboard();
+scoreboard.startMatch("Mexico", "Canada");
+scoreboard.updateScore("Mexico", "Canada", 0, 5);
+
+List<MatchSummary> summary = scoreboard.getSummary();                    // one entry: Mexico 0, Canada 5
+Optional<MatchSummary> match = scoreboard.findMatch("mexico", "canada"); // same match, names are case-insensitive
+
+scoreboard.finishMatch("Mexico", "Canada");
+```
+
+`startMatch`, `updateScore` and `finishMatch` declare checked exceptions. The example scenario from the task is covered by a test in `ScoreboardSpec`.
+
+## Build
+
+The project needs JDK 25 and Maven. `mvn clean verify` compiles the library and runs the Spock tests from `src/test/groovy`.
 
 ## Additional feature: look up a match by team pair
 
@@ -18,7 +37,7 @@ A small in-memory Java library for a live football World Cup scoreboard: start a
 - **Scores.** A match starts at 0-0. An update replaces both scores with the given values and may lower them, for example after a disallowed goal. Negative scores are rejected.
 - **Ordering.** Only start order matters, not timestamps, and the finish time is not recorded. The summary lists total score descending, and on a tie the most recently started match first.
 - **Summary.** It is an immutable snapshot of in-progress matches. It contains team names and scores only, and the library prints nothing, so the caller decides the format.
-- **Errors.** `startMatch` throws a checked `TeamAlreadyPlayingException`. `updateScore` and `finishMatch` throw a checked `MatchNotFoundException` or `MatchAlreadyFinishedException`. Invalid input (null, blank name, same team, negative score) throws `NullPointerException` or `IllegalArgumentException`. `findMatch` throws no checked exceptions.
+- **Errors.** `startMatch` throws a checked `TeamAlreadyPlayingException`. `updateScore` and `finishMatch` throw a checked `MatchNotFoundException` or `MatchAlreadyFinishedException`. Invalid input (null, blank name, same team, negative score) throws `NullPointerException` or `IllegalArgumentException`. Arguments are checked before the scoreboard is read, so invalid input fails the same way whatever it holds. `findMatch` throws no checked exceptions.
 - **Threading.** The library is not thread-safe, and callers synchronise if they need to.
 - **Out of scope.** Persistence, match time, scorers and events, a team's match history, a list of valid teams, and accented-character normalisation.
 

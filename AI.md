@@ -298,4 +298,37 @@ Summary:
 
 Wrote `findMatch` tests first (23 new cases failed), then implemented `findMatch` as a backwards scan for the pair's latest match, kept only if in progress. `mvn clean verify` passes; nothing was committed.
 
+### 23: Project clean-up
+Prompt:
+
+```text
+let us clean up the project. Remove redundant code, like this HElloWorld with dummy test.
+```
+
+Summary:
+
+Removed the `HelloWorld` scaffold and its dummy `HelloWorldSpec`; nothing else referenced them, and no other unused code was found. `mvn clean verify` passes with 129 tests. Nothing was committed.
+
+### 24: README update
+Prompt:
+
+```text
+Update README
+```
+
+Summary:
+
+Replaced the "implementation pending" status line in `README.md` with a pointer to the decisions, and added a Usage example and a Build section. Checked each README claim against the code and tests, and compiled and ran the usage example. Nothing was committed.
+
+### 25: Final analysis against the task
+Prompt:
+
+```text
+Let's try to wrap up what we have. Analyze our implementation against the task description once again, and its requirements and all details it contains. Update other appropriate files like DECISIONS.md and other as well.
+```
+
+Summary:
+
+Analyzed the implementation, tests, git history and docs against the task. Added decisions #14 (public API and package) and #15 (validation order) and a reading note about superseded references to `docs/DECISIONS.md`, and one sentence on validation order to `README.md`. Found a score-overflow edge case and missing `serialVersionUID`s, with no code changes yet.
+
 ## Artifacts

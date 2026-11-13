@@ -1,5 +1,7 @@
 # Design decisions
 
+A reference to a superseded decision applies to the decision that superseded it: #3 is replaced by #11 and #4 by #12.
+
 ## 1. Keep finished matches with a status
 - Status: accepted
 - Context: A finished match must be distinguishable from one that never existed.
@@ -71,3 +73,14 @@
 - Context: The same pair can have several matches, but at most one of them is in progress (per decision #11).
 - Decision: Matches are kept in a single `ArrayList` of immutable matches in start order, and finished matches are never removed (per decisions #1 and #2). A pair resolves by scanning backwards to its latest match, which is the in-progress one if any exists.
 - Consequences: No match id is needed, and lookups are linear, which is fine for about 100 matches. The summary filters in-progress matches and sorts them on read.
+
+## 14. Public API and package
+- Status: accepted
+- Context: The task leaves the names and the shape of the API open.
+- Decision: The public API is `Scoreboard` (`startMatch`, `updateScore`, `finishMatch`, `getSummary`, `findMatch`), the record `MatchSummary` and the three checked exceptions, all in `pl.emmajk.scoreboard`. `Match` and `MatchStatus` are package-private (per decision #6).
+- Consequences: Commands return nothing, and `getSummary` and `findMatch` share `MatchSummary` (per decision #10).
+
+## 15. Validate arguments before reading state
+- Status: accepted
+- Decision: Every operation checks its arguments in a fixed order before looking at any match: null, blank, same team, then negative scores.
+- Consequences: Invalid input fails the same way whatever the scoreboard holds (per decision #8), so a negative score for an unknown pair throws `IllegalArgumentException`, not `MatchNotFoundException`.
