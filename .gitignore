@@ -1,0 +1,14 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Maven
+target/
+
+# Claude Code (keep shared CLAUDE.md and project settings tracked)
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
