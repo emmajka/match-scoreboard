@@ -199,4 +199,15 @@ Summary:
 
 Added decision #13 (single `ArrayList` in start order, a pair resolves to its latest match) to `docs/DECISIONS.md` and a matching reasoning bullet to `README.md`. Nothing was committed.
 
+### 14: Types and method signatures
+Prompt:
+
+```text
+Let's discsuss the types now and method signatures. Can You propose code changes, please do create files in project for review.
+```
+
+Summary:
+
+Created a signature-only skeleton in `pl.emmajk.scoreboard`: the `Scoreboard` facade (stub bodies), the public `MatchSummary` record, three checked exceptions and the package-private `Match` record and `MatchStatus` enum. `mvn clean verify` compiles and passes; no logic or tests yet.
+
 ## Artifacts
