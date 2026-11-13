@@ -27,4 +27,18 @@ record Match(String homeTeam, String awayTeam, int homeScore, int awayScore, Mat
     boolean isPlayedBy(String teamLookupKey) {
         return lookupKey(homeTeam).equals(teamLookupKey) || lookupKey(awayTeam).equals(teamLookupKey);
     }
+
+    /**
+     * Tells whether the match is between the given home and away teams, given as lookup keys.
+     */
+    boolean isPair(String homeLookupKey, String awayLookupKey) {
+        return lookupKey(homeTeam).equals(homeLookupKey) && lookupKey(awayTeam).equals(awayLookupKey);
+    }
+
+    /**
+     * Returns a copy of the match with the given score.
+     */
+    Match withScore(int newHomeScore, int newAwayScore) {
+        return new Match(homeTeam, awayTeam, newHomeScore, newAwayScore, status);
+    }
 }

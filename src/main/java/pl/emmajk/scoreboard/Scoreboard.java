@@ -25,21 +25,21 @@ public final class Scoreboard {
     public void startMatch(String homeTeam, String awayTeam) throws TeamAlreadyPlayingException {
         Objects.requireNonNull(homeTeam, "homeTeam must not be null");
         Objects.requireNonNull(awayTeam, "awayTeam must not be null");
-        String home = Match.lookupKey(homeTeam);
-        String away = Match.lookupKey(awayTeam);
-        if (home.isEmpty() || away.isEmpty()) {
+        String homeLookupKey = Match.lookupKey(homeTeam);
+        String awayLookupKey = Match.lookupKey(awayTeam);
+        if (homeLookupKey.isEmpty() || awayLookupKey.isEmpty()) {
             throw new IllegalArgumentException("Team names must not be blank");
         }
 
-        if (home.equals(away)) {
+        if (homeLookupKey.equals(awayLookupKey)) {
             throw new IllegalArgumentException("A team cannot play itself: " + homeTeam);
         }
 
         for (Match match : matches) {
-            if (match.isInProgress() && match.isPlayedBy(home)) {
+            if (match.isInProgress() && match.isPlayedBy(homeLookupKey)) {
                 throw new TeamAlreadyPlayingException(homeTeam);
             }
-            if (match.isInProgress() && match.isPlayedBy(away)) {
+            if (match.isInProgress() && match.isPlayedBy(awayLookupKey)) {
                 throw new TeamAlreadyPlayingException(awayTeam);
             }
         }
@@ -57,7 +57,40 @@ public final class Scoreboard {
      */
     public void updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore)
             throws MatchNotFoundException, MatchAlreadyFinishedException {
-        throw new UnsupportedOperationException("Not implemented yet");
+        Objects.requireNonNull(homeTeam, "homeTeam must not be null");
+        Objects.requireNonNull(awayTeam, "awayTeam must not be null");
+        String homeLookupKey = Match.lookupKey(homeTeam);
+        String awayLookupKey = Match.lookupKey(awayTeam);
+        if (homeLookupKey.isEmpty() || awayLookupKey.isEmpty()) {
+            throw new IllegalArgumentException("Team names must not be blank");
+        }
+
+        if (homeLookupKey.equals(awayLookupKey)) {
+            throw new IllegalArgumentException("A team cannot play itself: " + homeTeam);
+        }
+
+        if (homeScore < 0 || awayScore < 0) {
+            throw new IllegalArgumentException("Scores must not be negative");
+        }
+
+        int index = -1;
+        for (int i = matches.size() - 1; i >= 0; i--) {
+            if (matches.get(i).isPair(homeLookupKey, awayLookupKey)) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index < 0) {
+            throw new MatchNotFoundException(homeTeam, awayTeam);
+        }
+
+        Match match = matches.get(index);
+        if (!match.isInProgress()) {
+            throw new MatchAlreadyFinishedException(homeTeam, awayTeam);
+        }
+
+        matches.set(index, match.withScore(homeScore, awayScore));
     }
 
     /**
@@ -88,5 +121,17 @@ public final class Scoreboard {
      */
     public Optional<MatchSummary> findMatch(String homeTeam, String awayTeam) {
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    /**
+     * Returns the index of the latest match of the pair, given as lookup keys, or -1 if there is none.
+     */
+    private int indexOfLatest(String homeLookupKey, String awayLookupKey) {
+        for (int i = matches.size() - 1; i >= 0; i--) {
+            if (matches.get(i).isPair(homeLookupKey, awayLookupKey)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

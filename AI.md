@@ -243,4 +243,15 @@ Summary:
 
 The user manually simplified `startMatch`: removed the `ensureNotPlaying` helper, renamed `key` to `lookupKey`, and `Match` now stores the lowercase lookup keys as team names. Reviewed it: `mvn clean verify` passes (32 tests), but storing keys loses the display names required by decision #12. No code was changed; awaiting a decision.
 
+### 18: updateScore implementation
+Prompt:
+
+```text
+let's move on to the updateScore method now. PRopose implemention, show changes in-code for me to review.
+```
+
+Summary:
+
+The user had already restored display names in `Match` by hand. Wrote `updateScore` tests first (26 new cases failed), then implemented `updateScore` with the `Match` helpers `isPair` and `withScore` and the `Scoreboard` helpers `validatePair` and `indexOfLatest`; `startMatch` now uses `validatePair`. `mvn clean verify` passes; nothing was committed.
+
 ## Artifacts
