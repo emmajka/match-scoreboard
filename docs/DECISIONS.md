@@ -12,13 +12,13 @@
 - Consequences: Ties are resolved by storage order, independent of clock resolution.
 
 ## 3. Address matches by the ordered team pair
-- Status: accepted
+- Status: superseded by #11
 - Context: The task defines no match id.
 - Decision: A match is addressed by its ordered (home, away) pair and resolves to the in-progress match of that pair. A team can be in at most one in-progress match, and a finished pair can be started again (per decision #1).
 - Consequences: No id type is needed. A reversed pair is a different pair, and lookups scan the list.
 
 ## 4. Team name rules and normalisation
-- Status: accepted
+- Status: superseded by #12
 - Decision: Names must be non-null and non-blank, and home and away must differ after normalisation. Lookups and checks use `strip()` and `toLowerCase(Locale.ROOT)`, while the match keeps the name as first given for display.
 - Consequences: Callers need not care about casing. There is no list of valid teams and no accent normalisation.
 
@@ -53,3 +53,15 @@
 - Context: The task requires one extra operation, and callers want one match's live score without scanning the summary.
 - Decision: `findMatch(home, away)` returns an `Optional` of the public record from decision #6, empty unless the pair has an in-progress match (per decision #3). Queries report absence as an empty result, while commands throw (per decision #7).
 - Consequences: It cannot tell a finished match from a missing one, and callers who want an error use `orElseThrow`. Input is validated as in decisions #4 and #8.
+
+## 11. Address matches by the ordered, normalised team pair
+- Status: accepted
+- Context: Supersedes decision #3, which did not say that pairs are compared after name normalisation.
+- Decision: A match is addressed by its ordered pair of normalised names (per decision #12) and resolves to the in-progress match of that pair. A team can be in at most one in-progress match, and a finished pair can be started again (per decision #1).
+- Consequences: No id type is needed. A reversed pair is a different pair, and lookups scan the list.
+
+## 12. Team name rules, normalisation and display name
+- Status: accepted
+- Context: Supersedes decision #4, which left open whether the display name keeps surrounding spaces.
+- Decision: Names must be non-null and non-blank, and home and away must differ after normalisation. Lookups and checks use `strip()` and `toLowerCase(Locale.ROOT)`, while the match keeps the stripped name in its original casing for display.
+- Consequences: Callers need not care about casing or surrounding spaces. There is no list of valid teams and no accent normalisation.

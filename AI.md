@@ -140,4 +140,28 @@ Summary:
 
 Documented the rule "commands throw, queries return `Optional`" in decision #10 of `docs/DECISIONS.md` and in the README (feature section, reasoning and trade-offs). Nothing was committed.
 
+### 10: Review of README.md and DECISIONS.md
+Prompt:
+
+```text
+Review what we have, attempt to find any conflicting information in the readme.,d and decisions.md, any misinformation, false statements and so on.
+```
+
+Summary:
+
+Reviewed `README.md` and `docs/DECISIONS.md` against each other, the task and `CLAUDE.md`, and listed five inaccuracies and several gaps with proposed fixes. No files other than `AI.md` were changed.
+
+### 11: Fixing README.md and superseding decisions #3 and #4
+Prompt:
+
+```text
+modify readme in-place but for decisions.md follow the principles as to not modify existing entires once commited, only the status ought to be mutable. Place new decisions fixing existing ones, use the supersede approach.
+
+Show me modified files for review.
+```
+
+Summary:
+
+Fixed the README inaccuracies in place. In `docs/DECISIONS.md` added decisions #11 and #12, which supersede #3 and #4, and changed only the status of #3 and #4. Nothing was committed.
+
 ## Artifacts
