@@ -20,4 +20,77 @@ Summary:
 
 Analyzed `docs/coding-task.pdf`, extended `.gitignore` with IntelliJ, Maven and Claude Code entries, and created a Java 25 Maven hello world project (`pom.xml`, `HelloWorld`) with one Spock/Groovy test. `mvn clean verify` passes.
 
+### 2: Discussion of implementation assumptions
+Prompt:
+
+```text
+Let's discuss assumptions for our task implementation. Be wary that it ought to be a plain solution, let us try not to overengineer it, let us keep it simple whenever and wherever possible.
+
+Assumptions I was thinking of are as follows:
+
+* only games which are in-progress can be modified, as in game's score cannot be changed if game finished.
+* finishing a game means removing it completely from internal storage, we do not care about finished games for now.
+* printed game's summary format should be decided by the caller, we should return the data and caller should decide what to do with it.
+* implementation should not enforce thread-safety, that responsibility should be of a caller/user of this library.
+* we do not care about when game was finished, we only care about when it started or perhaps in what order games were started in.
+
+
+Review my proposed assumptions, come up with Your own assumption proposals, verify it against the task description. Let us start the discussion.
+```
+
+Summary:
+
+Reviewed the five proposed assumptions against the task, proposed additional ones and listed open questions. No code or decision changes; the discussion continues.
+
+### 3: Merging assumptions, custom exceptions and case insensitivity
+Prompt:
+
+```text
+I agree with assumptions #6, #7, #8, #9, #10, #12. Regarding assumption #11 - if there is a necessity to add a custom error let's do this, it would be even better if add custom errors in cases like "unable to modify a match which was finished". Also it would be better if method definition would define what sort of exceptions are expected instead of generic JDK runtime exceptions and hope caller will prepare for them using try-catch or so.  
+
+Regarding assumption #10 - we can enforce case insensitivity as in we can store matches using lowercase and we can modify users input by making team names lowercase so user don't have to remember about i.
+
+
+Please do merge them with my assumptions, give me a list to review.
+```
+
+Summary:
+
+Merged the agreed assumptions with the original five into one numbered list and raised open points: finished vs missing match under #2, checked vs unchecked exceptions, and display casing. No code or decision changes.
+
+### 4: Retaining finished matches with a status field
+Prompt:
+
+```text
+regarding open points:
+A: Agreed on the part that if we remove a finished match from internal storage then we can't say if match never existed or was simply finished. Perhaps let's do a different approach. Each match ought to have a separate field `status` which would contain an enum with two possible values `IN_PROGRESS` or `FINISHED`. We would not remove the game from storage but leave it there with explicit `FINISHED` status. World cup's do not have a lot of games, we should not worry about memory usage or internal storage growing in size too much, this part we can assume it ought to be simple in design. Another issue Ican see that theoreticaly (correct me if I am wrong) two teams can play one game during the group matches and after leaving the group. They would have different start date's though so they should be distinguishable, what do You think?
+B: do the recommended exceptions split.
+C: separating display and normalized search name is a good idea, please assume so.
+D: regarding extra operation we will decide in another scope.
+
+Please do modify the assumptions list, show me its final version. IF there are any open points show me them and let's continue discussion.
+```
+
+Summary:
+
+Reworked the assumptions list for finished matches kept with a `FINISHED` status, a separate "already finished" exception, display vs normalised names, and the checked/unchecked exception split. Raised remaining open points; no code or decision changes.
+
+### 5: Recording agreed assumptions in README.md and DECISIONS.md
+Prompt:
+
+```text
+Regarding open points:
+
+1. we will expose a separate record/class with only the required fields for the caller so status field will remain a hidden fields for the caller.
+2. sounds good.
+3. let;s ignore the dates for now.
+
+
+Please do update the README.md's file with what we agreed on, modify `docs/DECISIONS.md` with whatever is appropriate to add there. Do not commit anything, let me review changes first.
+```
+
+Summary:
+
+Wrote nine accepted design decisions to `docs/DECISIONS.md` and filled `README.md` (assumptions, reasoning, trade-offs) with the agreed design. Nothing was committed.
+
 ## Artifacts
