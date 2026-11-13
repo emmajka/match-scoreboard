@@ -1,4 +1,4 @@
-package com.example.scoreboard
+package pl.emmajk
 
 import spock.lang.Specification
 

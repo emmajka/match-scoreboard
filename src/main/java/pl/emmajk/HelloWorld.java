@@ -1,4 +1,4 @@
-package com.example.scoreboard;
+package pl.emmajk;
 
 /** Placeholder entry point, to be replaced by the scoreboard. */
 public final class HelloWorld {
