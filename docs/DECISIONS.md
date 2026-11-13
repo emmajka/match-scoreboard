@@ -47,3 +47,9 @@
 - Status: accepted
 - Decision: The library is not thread-safe, and callers synchronise if they need to.
 - Consequences: The README and Javadoc state this. The returned snapshots are immutable and safe to share.
+
+## 10. Extra operation: look up a match by team pair
+- Status: accepted
+- Context: The task requires one extra operation, and callers want one match's live score without scanning the summary.
+- Decision: `findMatch(home, away)` returns an `Optional` of the public record from decision #6, empty unless the pair has an in-progress match (per decision #3). Queries report absence as an empty result, while commands throw (per decision #7).
+- Consequences: It cannot tell a finished match from a missing one, and callers who want an error use `orElseThrow`. Input is validated as in decisions #4 and #8.

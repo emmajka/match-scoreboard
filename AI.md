@@ -93,4 +93,51 @@ Summary:
 
 Wrote nine accepted design decisions to `docs/DECISIONS.md` and filled `README.md` (assumptions, reasoning, trade-offs) with the agreed design. Nothing was committed.
 
+### 6: Discussion of the additional feature
+Prompt:
+
+```text
+LEt's discuss now the additional feature.What I was thinking about is either:
+
+1. retrieve given team's match history in world cups's
+2. or retrieve current game's scope, game identified by the team's pair, possibility to retrieve only in-progress games.
+```
+
+Summary:
+
+Compared the two candidate features (team match history vs. single match lookup by team pair) against the agreed decisions and listed open questions. No code or decision changes; the discussion continues.
+
+### 7: Recording the additional feature (match lookup by team pair)
+Prompt:
+
+```text
+Let's go with option 2 then. Modify README.md and DECISIONS.md and any other appropriate files, let me review it.
+```
+
+Summary:
+
+Added decision #10 (look up an in-progress match by team pair, returning an `Optional`) to `docs/DECISIONS.md` and documented the feature, its reasoning and its trade-offs in `README.md`. Nothing was committed.
+
+### 8: Optional vs exception consistency for the lookup
+Prompt:
+
+```text
+regarding additional method signature, You say return an Optional and in design decision #7 we decided that one of `finishMAtch`'s  throwable errors would be `MatchNotFoundException` - cna You analyze if that approach is consistent? IS return an optional in one method and throwing an error in another is a proper approach? Is it considered best standard and practice to do so?
+```
+
+Summary:
+
+Analyzed whether returning an `Optional` from `findMatch` while `finishMatch` throws `MatchNotFoundException` is consistent, and listed the alternatives. No code or decision changes; the question is still open.
+
+### 9: Documenting the Optional vs exception rule
+Prompt:
+
+```text
+okey, let's keep it like this, as You have recommended. Please do document it properly though. Modify files, let me review them. You can modify already modified files in this session which were not yet commited.
+```
+
+Summary:
+
+Documented the rule "commands throw, queries return `Optional`" in decision #10 of `docs/DECISIONS.md` and in the README (feature section, reasoning and trade-offs). Nothing was committed.
+
 ## Artifacts
