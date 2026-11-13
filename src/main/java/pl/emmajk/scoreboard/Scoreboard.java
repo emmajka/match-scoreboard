@@ -93,7 +93,15 @@ public final class Scoreboard {
      * @throws IllegalArgumentException if a name is blank or both teams are the same
      */
     public Optional<MatchSummary> findMatch(String homeTeam, String awayTeam) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        validatePair(homeTeam, awayTeam);
+        String homeLookupKey = Match.lookupKey(homeTeam);
+        String awayLookupKey = Match.lookupKey(awayTeam);
+
+        return matches.reversed().stream()
+                .filter(match -> match.isPair(homeLookupKey, awayLookupKey))
+                .findFirst()
+                .filter(Match::isInProgress)
+                .map(Match::toSummary);
     }
 
     /**

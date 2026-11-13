@@ -287,4 +287,15 @@ Summary:
 
 The user had inlined `indexOfLatest` into `indexOfInProgress` by hand. Wrote `getSummary` tests first (10 of 11 new cases failed), then implemented `getSummary` as a reversed, filtered, stably sorted stream, with `Match.totalScore()` and `Match.toSummary()`. The new tests also read back what `startMatch`, `updateScore` and `finishMatch` stored. `mvn clean verify` passes; nothing was committed.
 
+### 22: findMatch implementation
+Prompt:
+
+```text
+implement findMatch
+```
+
+Summary:
+
+Wrote `findMatch` tests first (23 new cases failed), then implemented `findMatch` as a backwards scan for the pair's latest match, kept only if in progress. `mvn clean verify` passes; nothing was committed.
+
 ## Artifacts
