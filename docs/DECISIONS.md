@@ -1,6 +1,6 @@
 # Design decisions
 
-A reference to a superseded decision applies to the decision that superseded it: #3 is replaced by #11 and #4 by #12.
+A reference to a superseded decision applies to the decision that superseded it: #3 is replaced by #11, which is replaced by #16, and #4 by #12.
 
 ## 1. Keep finished matches with a status
 - Status: accepted
@@ -57,7 +57,7 @@ A reference to a superseded decision applies to the decision that superseded it:
 - Consequences: It cannot tell a finished match from a missing one, and callers who want an error use `orElseThrow`. Input is validated as in decisions #4 and #8.
 
 ## 11. Address matches by the ordered, normalised team pair
-- Status: accepted
+- Status: superseded by #16
 - Context: Supersedes decision #3, which did not say that pairs are compared after name normalisation.
 - Decision: A match is addressed by its ordered pair of normalised names (per decision #12) and resolves to the in-progress match of that pair. A team can be in at most one in-progress match, and a finished pair can be started again (per decision #1).
 - Consequences: No id type is needed. A reversed pair is a different pair, and lookups scan the list.
@@ -84,3 +84,9 @@ A reference to a superseded decision applies to the decision that superseded it:
 - Status: accepted
 - Decision: Every operation checks its arguments in a fixed order before looking at any match: null, blank, same team, then negative scores.
 - Consequences: Invalid input fails the same way whatever the scoreboard holds (per decision #8), so a negative score for an unknown pair throws `IllegalArgumentException`, not `MatchNotFoundException`.
+
+## 16. Address matches by the unordered team pair
+- Status: accepted
+- Context: Supersedes decision #11, because callers may not know which team is home.
+- Decision: A match is addressed by its two normalised names in either order. Each score given to `updateScore` goes to the team named with it, and results keep the home and away order of the start.
+- Consequences: A rematch may swap home and away. Decisions #7, #10 and #13 apply unchanged.

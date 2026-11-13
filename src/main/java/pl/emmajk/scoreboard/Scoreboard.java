@@ -41,7 +41,7 @@ public final class Scoreboard {
     }
 
     /**
-     * Replaces the score of the in-progress match of the given pair.
+     * Replaces the score of the in-progress match of the pair, in either team order; each score goes to the team named with it.
      *
      * @throws MatchNotFoundException        if the pair has no match
      * @throws MatchAlreadyFinishedException if the latest match of the pair is finished
@@ -56,11 +56,11 @@ public final class Scoreboard {
         }
 
         int index = indexOfInProgress(homeTeam, awayTeam);
-        matches.set(index, matches.get(index).withScore(homeScore, awayScore));
+        matches.set(index, matches.get(index).withScore(Match.lookupKey(homeTeam), homeScore, awayScore));
     }
 
     /**
-     * Finishes the in-progress match of the given pair.
+     * Finishes the in-progress match of the pair, in either team order.
      *
      * @throws MatchNotFoundException        if the pair has no match
      * @throws MatchAlreadyFinishedException if the latest match of the pair is finished
@@ -87,7 +87,7 @@ public final class Scoreboard {
     }
 
     /**
-     * Returns the in-progress match of the given pair, or empty if there is none.
+     * Returns the in-progress match of the pair, in either team order, as it was started, or empty if there is none.
      *
      * @throws NullPointerException     if a name is null
      * @throws IllegalArgumentException if a name is blank or both teams are the same
@@ -125,9 +125,11 @@ public final class Scoreboard {
      */
     private int indexOfInProgress(String homeTeam, String awayTeam)
             throws MatchNotFoundException, MatchAlreadyFinishedException {
+        String homeLookupKey = Match.lookupKey(homeTeam);
+        String awayLookupKey = Match.lookupKey(awayTeam);
         int index = -1;
         for (int i = matches.size() - 1; i >= 0; i--) {
-            if (matches.get(i).isPair(Match.lookupKey(homeTeam), Match.lookupKey(awayTeam))) {
+            if (matches.get(i).isPair(homeLookupKey, awayLookupKey)) {
                 index = i;
                 break;
             }

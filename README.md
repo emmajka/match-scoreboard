@@ -25,16 +25,16 @@ The project needs JDK 25 and Maven. `mvn clean verify` compiles the library and 
 
 ## Additional feature: look up a match by team pair
 
-`findMatch(home, away)` returns the current score of one in-progress match, or an empty `Optional` if that pair is not playing. The pair is ordered and the names are case-insensitive, as for the other operations. It never returns finished matches. Invalid input is rejected as for the other operations, so a blank name or the same team twice throws an unchecked exception instead of returning empty. Operations that change a match throw when it is not in progress, while this read reports absence as an empty result. Callers who want an error can use `orElseThrow`.
+`findMatch(home, away)` returns the current score of one in-progress match, or an empty `Optional` if that pair is not playing. The teams can be given in either order and the names are case-insensitive, as for the other operations. The result keeps the home and away order of the start. It never returns finished matches. Invalid input is rejected as for the other operations, so a blank name or the same team twice throws an unchecked exception instead of returning empty. Operations that change a match throw when it is not in progress, while this read reports absence as an empty result. Callers who want an error can use `orElseThrow`.
 
 **Why this one.** Callers often need the live score of a single match, and without this they would fetch the whole summary and filter it. It reuses the pair lookup and the summary's public record, so it adds no new type. A team's match history would also have been possible, but it needs a second public record that includes status and the final score, which is more than this library needs. See decision #10 in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## My assumptions
 
 - **Match lifecycle.** A match is `IN_PROGRESS` or `FINISHED`. Only in-progress matches can be updated or finished. Finished matches stay in memory with status `FINISHED`.
-- **Identity.** A match is addressed by its ordered (home, away) pair of normalised names, with no generated id. A team can be in at most one in-progress match, and a finished pair can be started again, for example a group match followed by a knockout rematch.
+- **Identity.** A match is addressed by its pair of normalised names in either order, with no generated id. A rematch may swap home and away. A team can be in at most one in-progress match, and a finished pair can be started again, for example a group match followed by a knockout rematch.
 - **Team names.** Names must be non-null and non-blank, and a team cannot play itself. Matching is case-insensitive and ignores surrounding spaces. The summary shows the name as first given, without surrounding spaces.
-- **Scores.** A match starts at 0-0. An update replaces both scores with the given values and may lower them, for example after a disallowed goal. Negative scores are rejected.
+- **Scores.** A match starts at 0-0. An update replaces both scores with the given values, each going to the team named with it whatever the team order, and may lower them, for example after a disallowed goal. Negative scores are rejected.
 - **Ordering.** Only start order matters, not timestamps, and the finish time is not recorded. The summary lists total score descending, and on a tie the most recently started match first.
 - **Summary.** It is an immutable snapshot of in-progress matches. It contains team names and scores only, and the library prints nothing, so the caller decides the format.
 - **Errors.** `startMatch` throws a checked `TeamAlreadyPlayingException`. `updateScore` and `finishMatch` throw a checked `MatchNotFoundException` or `MatchAlreadyFinishedException`. Invalid input (null, blank name, same team, negative score) throws `NullPointerException` or `IllegalArgumentException`. Arguments are checked before the scoreboard is read, so invalid input fails the same way whatever it holds. `findMatch` throws no checked exceptions.
@@ -54,6 +54,7 @@ The project needs JDK 25 and Maven. `mvn clean verify` compiles the library and 
 
 - **Memory grows.** Finished matches are never removed. This is fine for a tournament, not for a long-running service.
 - **Linear lookups.** Finding a match scans the list, which is fast enough for this size.
+- **Plain `int` scores.** The total score is an `int` sum with no overflow guard, because real match scores never come near `Integer.MAX_VALUE`.
 - **`findMatch` returns `Optional`.** The caller cannot tell a finished match from one that never started, but a read does not need a checked exception, and callers who want an error can use `orElseThrow`.
 - **Checked exceptions** add handling code for callers, in exchange for compiler-enforced handling of expected errors.
 - **Case-insensitive matching** is simple but does not treat accent variants ("Côte d'Ivoire" and "Cote d'Ivoire") or alternative names ("USA" and "United States") as the same team.

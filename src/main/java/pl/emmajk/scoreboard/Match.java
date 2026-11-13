@@ -29,17 +29,23 @@ record Match(String homeTeam, String awayTeam, int homeScore, int awayScore, Mat
     }
 
     /**
-     * Tells whether the match is between the given home and away teams, given as lookup keys.
+     * Tells whether the match is between the two teams, given as lookup keys, in either order.
      */
-    boolean isPair(String homeLookupKey, String awayLookupKey) {
-        return lookupKey(homeTeam).equals(homeLookupKey) && lookupKey(awayTeam).equals(awayLookupKey);
+    boolean isPair(String firstLookupKey, String secondLookupKey) {
+        String home = lookupKey(homeTeam);
+        String away = lookupKey(awayTeam);
+        return (home.equals(firstLookupKey) && away.equals(secondLookupKey))
+                || (home.equals(secondLookupKey) && away.equals(firstLookupKey));
     }
 
     /**
-     * Returns a copy of the match with the given score.
+     * Returns a copy of the match with the scores of the first team (given as lookup key) and of the other team.
      */
-    Match withScore(int newHomeScore, int newAwayScore) {
-        return new Match(homeTeam, awayTeam, newHomeScore, newAwayScore, status);
+    Match withScore(String firstLookupKey, int firstScore, int otherScore) {
+        if (lookupKey(homeTeam).equals(firstLookupKey)) {
+            return new Match(homeTeam, awayTeam, firstScore, otherScore, status);
+        }
+        return new Match(homeTeam, awayTeam, otherScore, firstScore, status);
     }
 
     /**

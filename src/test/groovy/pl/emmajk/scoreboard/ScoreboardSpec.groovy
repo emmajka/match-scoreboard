@@ -224,7 +224,6 @@ class ScoreboardSpec extends Specification {
 
         where:
         home      | away
-        "Brazil"  | "Spain"
         "Spain"   | "Italy"
         "Italy"   | "Brazil"
         "Germany" | "France"
@@ -353,7 +352,6 @@ class ScoreboardSpec extends Specification {
 
         where:
         home      | away
-        "Brazil"  | "Spain"
         "Spain"   | "Italy"
         "Italy"   | "Brazil"
         "Germany" | "France"
@@ -652,7 +650,6 @@ class ScoreboardSpec extends Specification {
 
         where:
         home      | away
-        "Brazil"  | "Spain"
         "Spain"   | "Italy"
         "Italy"   | "Brazil"
         "Germany" | "France"
@@ -721,5 +718,95 @@ class ScoreboardSpec extends Specification {
 
         expect:
         scoreboard.findMatch("Spain", "Brazil").get() == new MatchSummary("Spain", "Brazil", 0, 0)
+    }
+
+    def "updateScore - dataset tests - team order"() {
+        given:
+        scoreboard.startMatch("Spain", "Germany")
+
+        when:
+        scoreboard.updateScore(home, away, homeScore, awayScore)
+
+        then:
+        scoreboard.getSummary() == [new MatchSummary("Spain", "Germany", spainScore, germanyScore)]
+
+        where:
+        home        | away      | homeScore | awayScore | spainScore | germanyScore
+        "Spain"     | "Germany" | 2         | 1         | 2          | 1
+        "Germany"   | "Spain"   | 1         | 2         | 2          | 1
+        " GERMANY " | "spain"   | 0         | 4         | 4          | 0
+    }
+
+    def "given the teams in reverse order when calling finishMatch should finish the match"() {
+        given:
+        scoreboard.startMatch("Spain", "Germany")
+
+        when:
+        scoreboard.finishMatch("Germany", "Spain")
+
+        then:
+        noExceptionThrown()
+        scoreboard.getSummary() == []
+    }
+
+    def "given a match finished with reversed teams when calling updateScore then should throw a MatchAlreadyFinishedException"() {
+        given:
+        scoreboard.startMatch("Spain", "Germany")
+        scoreboard.finishMatch("Germany", "Spain")
+
+        when:
+        scoreboard.updateScore(home, away, 1, 0)
+
+        then:
+        thrown(MatchAlreadyFinishedException)
+
+        where:
+        home      | away
+        "Spain"   | "Germany"
+        "Germany" | "Spain"
+    }
+
+    def "given a finished pair when calling findMatch with either team order should return an empty result"() {
+        given:
+        scoreboard.startMatch("Spain", "Germany")
+        scoreboard.finishMatch("Spain", "Germany")
+
+        expect:
+        scoreboard.findMatch(home, away).isEmpty()
+
+        where:
+        home      | away
+        "Spain"   | "Germany"
+        "Germany" | "Spain"
+    }
+
+    def "given the teams in reverse order when calling findMatch should return the match as it was started"() {
+        given:
+        scoreboard.startMatch("Spain", "Germany")
+        scoreboard.updateScore("Spain", "Germany", 3, 1)
+
+        expect:
+        scoreboard.findMatch(" GERMANY ", "spain").get() == new MatchSummary("Spain", "Germany", 3, 1)
+    }
+
+    def "given a finished pair started again with swapped teams should address the new match in either order"() {
+        given:
+        scoreboard.startMatch("Spain", "Germany")
+        scoreboard.updateScore("Spain", "Germany", 5, 0)
+        scoreboard.finishMatch("Spain", "Germany")
+        scoreboard.startMatch("Germany", "Spain")
+
+        when:
+        scoreboard.updateScore("Spain", "Germany", 1, 2)
+
+        then:
+        scoreboard.getSummary() == [new MatchSummary("Germany", "Spain", 2, 1)]
+
+        when:
+        scoreboard.finishMatch("Spain", "Germany")
+        scoreboard.updateScore("Germany", "Spain", 3, 3)
+
+        then:
+        thrown(MatchAlreadyFinishedException)
     }
 }

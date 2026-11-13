@@ -331,4 +331,48 @@ Summary:
 
 Analyzed the implementation, tests, git history and docs against the task. Added decisions #14 (public API and package) and #15 (validation order) and a reading note about superseded references to `docs/DECISIONS.md`, and one sentence on validation order to `README.md`. Found a score-overflow edge case and missing `serialVersionUID`s, with no code changes yet.
 
+### 26: Fixing the total score overflow
+Prompt:
+
+```text
+Fix overflow
+```
+
+Summary:
+
+Added a failing test with `Integer.MAX_VALUE` first, then changed `Match.totalScore()` to return a `long` and the summary sort to `Comparator.comparingLong`. `mvn clean verify` passes with 130 tests. Nothing was committed.
+
+### 27: Reverting the overflow fix
+Prompt:
+
+```text
+on the other hand, revert this decision. Theoretically it will never overflow, match scores never go so high so we can ignore this.
+```
+
+Summary:
+
+Reverted the overflow fix: `Match.totalScore()` is an `int` again, the summary sorts with `Comparator.comparingInt`, and the overflow test was removed. Added a trade-off bullet to `README.md` stating that the total is an `int` with no overflow guard. `mvn clean verify` passes with 129 tests. Nothing was committed.
+
+### 28: Order-insensitive team pair and code review for similar issues
+Prompt:
+
+```text
+Let's discsuss the code. One of the things I have found which could use modification is `Match.isPair` , it assumes that user will always know who is away and who is home team but some users might use parin spain - germany and some germany - spain. Analyze existing code to find similar potential issues, bug-candidates. Propse a fix, apply in-code changes for me to review.
+```
+
+Summary:
+
+Reviewed the code for caller-assumption bugs. Tests first (7 new failing cases), then made team lookup order-insensitive: `Match.isPair` accepts either team order, `Match.withScore` gives each score to the team named with it, and `indexOfInProgress` computes its keys once. Updated the Javadoc and `README.md`; `mvn clean verify` passes with 139 tests. `docs/DECISIONS.md` is unchanged: decision #11 says the pair is ordered, so a superseding decision awaits approval. Nothing was committed.
+
+### 29: Decision #16
+Prompt:
+
+```text
+Add decision #16
+```
+
+Summary:
+
+Added decision #16 (match addressed by the unordered team pair, scores follow the team) to `docs/DECISIONS.md`, set decision #11 to `superseded by #16`, and updated the reading note. Nothing was committed.
+
 ## Artifacts
