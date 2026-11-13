@@ -210,4 +210,37 @@ Summary:
 
 Created a signature-only skeleton in `pl.emmajk.scoreboard`: the `Scoreboard` facade (stub bodies), the public `MatchSummary` record, three checked exceptions and the package-private `Match` record and `MatchStatus` enum. `mvn clean verify` compiles and passes; no logic or tests yet.
 
+### 15: startMatch implementation proposal
+Prompt:
+
+```text
+okey, I have approved Your proposal with small rename on `MatchScore` to `MatchSummary`. Let's continue with next steps. LEt us now focus on the first method `startMatch`. Propose implementation per our decisions and requirements made.
+```
+
+Summary:
+
+The user approved the skeleton and renamed `MatchScore` to `MatchSummary` manually. Proposed the `startMatch` plan, test list and implementation inline, without changing any code; awaiting approval.
+
+### 16: Implementing startMatch in code
+Prompt:
+
+```text
+implement changes in code for me to review, remember about it for next prompts.
+```
+
+Summary:
+
+Wrote `ScoreboardSpec` for `startMatch` first (27 of 31 cases failed against the stubs), then implemented `startMatch` and the `Match` helpers `key`, `isInProgress` and `isPlayedBy`. `mvn clean verify` passes with 32 tests. Nothing was committed.
+
+### 17: Review of manual startMatch changes
+Prompt:
+
+```text
+I have reviewed the code, modified it. Please review  changes, the tests are passing. I have removed redundant complexity.
+```
+
+Summary:
+
+The user manually simplified `startMatch`: removed the `ensureNotPlaying` helper, renamed `key` to `lookupKey`, and `Match` now stores the lowercase lookup keys as team names. Reviewed it: `mvn clean verify` passes (32 tests), but storing keys loses the display names required by decision #12. No code was changed; awaiting a decision.
+
 ## Artifacts
