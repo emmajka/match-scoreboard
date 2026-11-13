@@ -1,4 +1,13 @@
 ## How I used AI tools
+Used claude code to discuss task scope, requirements and initial assumptions made on the implementation. 
+Worked with claude code to generate code, afterwards I reviewed it before each commit, adjusted manually wherever I saw potential improvements
+and discussed with claude different approaches.
+
+## Artifacts
+- `docs/coding-task.pdf` - task description provided by the customer.
+- `docs/DECISIONS.md` - a log of design decision made before and during implementation, a strict rule book for an agent to follow.
+- `CLAUDE.md` - context for claude to work with.
+- `README.md` - overview on project, on assumptions, tread-offs and my reasoning behind decisions which were made
 
 ## Prompt log
 
@@ -375,4 +384,24 @@ Summary:
 
 Added decision #16 (match addressed by the unordered team pair, scores follow the team) to `docs/DECISIONS.md`, set decision #11 to `superseded by #16`, and updated the reading note. Nothing was committed.
 
-## Artifacts
+### 30: README review against the project
+Prompt:
+
+```text
+Analyze README.md file, check against project content, see if it reflects actual state and thought process.
+```
+
+Summary:
+
+The user had filled the "How I used AI tools" and "Artifacts" sections of `AI.md` manually. Reviewed `README.md` against the code, tests, decisions and git state: every behavioural claim holds, with a few inaccuracies (non-breaking spaces, "reuses the pair lookup") and missing reasoning and trade-offs for decision #16. No files other than `AI.md` were changed.
+
+### 31: Applying the README fixes
+Prompt:
+
+```text
+Apply fixes
+```
+
+Summary:
+
+Applied the README review fixes: corrected the whitespace and "reuses the pair lookup" statements, added reasoning bullets for the either-order pair and name normalisation, added trade-offs for the unordered pair, repeated normalisation and unhandled name forms, and added the package name and an `AI.md` link. Nothing was committed.
