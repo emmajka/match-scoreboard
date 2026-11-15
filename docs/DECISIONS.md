@@ -1,6 +1,6 @@
 # Design decisions
 
-A reference to a superseded decision applies to the decision that superseded it: #3 is replaced by #11, which is replaced by #16, and #4 by #12.
+A reference to a superseded decision applies to the decision that superseded it: #3 is replaced by #11, which is replaced by #16, which is replaced by #18, and #4 is replaced by #12, which is replaced by #17, as is #15.
 
 ## 1. Keep finished matches with a status
 - Status: accepted
@@ -63,7 +63,7 @@ A reference to a superseded decision applies to the decision that superseded it:
 - Consequences: No id type is needed. A reversed pair is a different pair, and lookups scan the list.
 
 ## 12. Team name rules, normalisation and display name
-- Status: accepted
+- Status: superseded by #17
 - Context: Supersedes decision #4, which left open whether the display name keeps surrounding spaces.
 - Decision: Names must be non-null and non-blank, and home and away must differ after normalisation. Lookups and checks use `strip()` and `toLowerCase(Locale.ROOT)`, while the match keeps the stripped name in its original casing for display.
 - Consequences: Callers need not care about casing or surrounding spaces. There is no list of valid teams and no accent normalisation.
@@ -81,12 +81,24 @@ A reference to a superseded decision applies to the decision that superseded it:
 - Consequences: Commands return nothing, and `getSummary` and `findMatch` share `MatchSummary` (per decision #10).
 
 ## 15. Validate arguments before reading state
-- Status: accepted
+- Status: superseded by #17
 - Decision: Every operation checks its arguments in a fixed order before looking at any match: null, blank, same team, then negative scores.
 - Consequences: Invalid input fails the same way whatever the scoreboard holds (per decision #8), so a negative score for an unknown pair throws `IllegalArgumentException`, not `MatchNotFoundException`.
 
 ## 16. Address matches by the unordered team pair
-- Status: accepted
+- Status: superseded by #18
 - Context: Supersedes decision #11, because callers may not know which team is home.
 - Decision: A match is addressed by its two normalised names in either order. Each score given to `updateScore` goes to the team named with it, and results keep the home and away order of the start.
 - Consequences: A rematch may swap home and away. Decisions #7, #10 and #13 apply unchanged.
+
+## 17. Reject padded names and compare normalised names
+- Status: accepted
+- Context: Supersedes decisions #12 and #15: names are no longer stripped, and accents are now ignored.
+- Decision: Arguments are checked before any match is read, in this order: names non-null, non-blank and without surrounding whitespace, teams different, then scores non-negative. Names are compared as a key (lower case, accents removed with `java.text.Normalizer`) computed once in `MatchParticipants`, and a match keeps the names as given for display.
+- Consequences: Letters without a decomposition such as `ł` and `ø`, and alternative names, are not folded. Whitespace is judged by `String.strip()`.
+
+## 18. Address matches by the ordered participants
+- Status: accepted
+- Context: Supersedes decision #16: home and away matter, and keeping them consistent is the caller's responsibility.
+- Decision: A match is addressed by its `MatchParticipants`, the ordered pair of normalised home and away names (per decision #17), and the scores of `updateScore` are positional. A team can be in at most one in-progress match as home or away team, and a finished pair can be started again, also with swapped teams (per decision #1).
+- Consequences: A swapped pair is another match, so `updateScore` and `finishMatch` throw `MatchNotFoundException` for it and `findMatch` returns empty. Decisions #7, #10 and #13 apply unchanged.

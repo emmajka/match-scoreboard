@@ -1,18 +1,10 @@
 package pl.emmajk.scoreboard;
 
-import java.util.Locale;
-
 /**
- * Internal match with its status, team names as first given.
+ * Internal match with its status, team names as given and their normalised participants.
  */
-record Match(String homeTeam, String awayTeam, int homeScore, int awayScore, MatchStatus status) {
-
-    /**
-     * Returns the lookup key of a team name: stripped and lower-cased.
-     */
-    static String lookupKey(String teamName) {
-        return teamName.strip().toLowerCase(Locale.ROOT);
-    }
+record Match(String homeTeam, String awayTeam, MatchParticipants participants, int homeScore, int awayScore,
+             MatchStatus status) {
 
     /**
      * Tells whether the match is in progress.
@@ -22,30 +14,10 @@ record Match(String homeTeam, String awayTeam, int homeScore, int awayScore, Mat
     }
 
     /**
-     * Tells whether the team, given as a lookup key, plays in this match.
+     * Returns a copy of the match with the given score.
      */
-    boolean isPlayedBy(String teamLookupKey) {
-        return lookupKey(homeTeam).equals(teamLookupKey) || lookupKey(awayTeam).equals(teamLookupKey);
-    }
-
-    /**
-     * Tells whether the match is between the two teams, given as lookup keys, in either order.
-     */
-    boolean isPair(String firstLookupKey, String secondLookupKey) {
-        String home = lookupKey(homeTeam);
-        String away = lookupKey(awayTeam);
-        return (home.equals(firstLookupKey) && away.equals(secondLookupKey))
-                || (home.equals(secondLookupKey) && away.equals(firstLookupKey));
-    }
-
-    /**
-     * Returns a copy of the match with the scores of the first team (given as lookup key) and of the other team.
-     */
-    Match withScore(String firstLookupKey, int firstScore, int otherScore) {
-        if (lookupKey(homeTeam).equals(firstLookupKey)) {
-            return new Match(homeTeam, awayTeam, firstScore, otherScore, status);
-        }
-        return new Match(homeTeam, awayTeam, otherScore, firstScore, status);
+    Match withScore(int newHomeScore, int newAwayScore) {
+        return new Match(homeTeam, awayTeam, participants, newHomeScore, newAwayScore, status);
     }
 
     /**
@@ -66,6 +38,6 @@ record Match(String homeTeam, String awayTeam, int homeScore, int awayScore, Mat
      * Returns a copy of the match marked as finished.
      */
     Match finished() {
-        return new Match(homeTeam, awayTeam, homeScore, awayScore, MatchStatus.FINISHED);
+        return new Match(homeTeam, awayTeam, participants, homeScore, awayScore, MatchStatus.FINISHED);
     }
 }

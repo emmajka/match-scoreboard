@@ -405,3 +405,63 @@ Apply fixes
 Summary:
 
 Applied the README review fixes: corrected the whitespace and "reuses the pair lookup" statements, added reasoning bullets for the either-order pair and name normalisation, added trade-offs for the unordered pair, repeated normalisation and unhandled name forms, and added the package name and an `AI.md` link. Nothing was committed.
+
+### 32: Discussion of exact team names
+Prompt:
+
+```text
+I would like to simplify the solution a bit.
+
+I want to make an assumption that user is responsible for sending correct team names, as in let's assume that user has some sort of dictionary/database with available teams which are taking part in the world cup. We should not care if he sends `Germany` or `germany` or `gErmany`, we ought to accept it as it is. The only thing which we should verify on our end if the team names he has passed are not null, not blank and do not have any prepended or/and appended whitespaces like ` gErmany` or ` germany ` and so on. It could be a general assumption that no country in the world exists with appended or/and prepended whitespaces.
+
+Let's start discussion on this topic, what are Your thoughts about it? Is it a fair assumption? In my opinion it could simplify the code. Try to find potential issues or logical flaws. Do not modify files yet, let's just discuss topic.
+```
+
+Summary:
+
+Discussed replacing name normalisation with exact, case-sensitive names that are rejected when null, blank or padded with whitespace. Listed the code and decision simplifications and the consequences. No code or decision changes; the discussion continues.
+
+### 33: Discussion of a MatchId record with normalised names
+Prompt:
+
+```text
+Instead of using exact, case-sensitive comparisons I would do something else. I would suggest introducing a new object as in `MatchId`, an immutable record which would contain within it 2 values - home and away team names but normalized, in our case it would be making all letters lowercase and, that is open for discussion, removal language accents like polish `ó` to `o` and so on, is that doable with no additional dependencies?
+
+This new `MatchId` could be computed once and methods like  `Match.isPlayedBy`, `Match.isPair` could be moved there. What are Your thoughts? We could remove `Match.lookupKey` completely, it would be computed once during creation of `MatchId`. LEt's discsuss further, are those changes I proposed compatible with each other? Analyze it, try to find potential logical flaws.
+```
+
+Summary:
+
+Analyzed the proposed `MatchId` record with accent-stripping normalisation: checked that JDK-only accent removal works with its limits, and listed compatibility points and flaws. No code or decision changes; the discussion continues.
+
+### 34: MatchParticipants name, padding example and ordered home/away pair
+Prompt:
+
+```text
+Regarding questions:
+
+1. instead of `TeamPair` let's perhaps name it `MatchParticipants`?
+2. PAdding - can You show me an example first before I decide?
+3. Scope - yes, let's do it like this.
+
+Regarding ordering of teams in a match, what about if we could do it as follows - deciding whether it is a home or away team is crucial, in theory match `Spain - Germany` which follows pattern `home - away` is a different match to `Germany - Spain` - that makes sense. Because of that we could use `isPlayedBy` to verify if Germany isn't already playing a game, be it aas a home or away teams. What are Your thoughts?
+```
+
+Summary:
+
+Accepted the `MatchParticipants` name and the accent-stripping scope, showed padding examples (strip vs reject), and analyzed returning to an ordered home/away pair, which would supersede decision #16. No code or decision changes; the discussion continues.
+
+### 35: Implementing MatchParticipants, ordered pair and rejected padded names
+Prompt:
+
+```text
+Regarding padding - reject padded names.
+
+Regarding the ordering of teams let's make it so that it matters and is a responsibility of a caller.
+
+Please do apply changes to code for me to review. Remember to update necessary files, if the updates are applicable (decisions.md, ai.md, readme.md and others.). Adjust tests as well, tidy up them if possible.
+```
+
+Summary:
+
+Introduced the package-private `MatchParticipants` record (normalised home and away keys, built by a validating factory, with `isPlayedBy`), removed `Match.lookupKey`, `isPair` and the score swapping, and made home and away order the caller's responsibility; padded names are now rejected and accents are ignored via `java.text.Normalizer`. Tests were rewritten first and split by operation (179 cases, all passing), and `docs/DECISIONS.md` (new #17 and #18, superseding #12, #15 and #16) and `README.md` were updated. Nothing was committed.
