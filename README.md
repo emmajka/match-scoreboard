@@ -45,7 +45,7 @@ The project needs JDK 25 and Maven. `mvn clean verify` compiles the library and 
 
 - **Keep it plain.** A tournament has about 100 matches (104 in the 2026 format), so a simple in-memory list is enough. There is no id type, no timestamps and no clock.
 - **Start order instead of time.** Matches are stored in start order, so the tie-break is the reverse of storage order. It does not depend on clock resolution.
-- **One list.** Matches live in a single `ArrayList` in start order. A pair resolves by scanning backwards to its latest match, which is the in-progress one if there is one, so no match id is needed.
+- **One list behind a store.** Matches live in a single `ArrayList` in start order, hidden inside the package-private `MatchStore`, so `Scoreboard` holds the rules and never touches the list. A pair resolves by scanning backwards to its latest match, which is the in-progress one if there is one, so no match id is needed.
 - **Home and away matter.** A match between Spain and Germany is another fixture than one between Germany and Spain, and scores are positional, so the order is the caller's responsibility. A team is still checked in both slots, so it cannot play two matches at once. A wrong order fails loudly for updates and finishes.
 - **Normalised names.** Callers should not have to match casing or accents, so each name becomes a key once, in `MatchParticipants` (lower case, accents removed with the JDK's `Normalizer`), while the match keeps the name as given for display. Padding is rejected instead of stripped, which surfaces dirty input early.
 - **Finished matches are kept.** Without them, "finished" cannot be told apart from "never started", so the scoreboard could not report the right error. A pair therefore resolves to its in-progress match first, then to a finished one, because the same pair can meet twice.
@@ -56,6 +56,7 @@ The project needs JDK 25 and Maven. `mvn clean verify` compiles the library and 
 
 - **Memory grows.** Finished matches are never removed. This is fine for a tournament, not for a long-running service.
 - **Linear lookups.** Finding a match scans the list, which is fast enough for this size.
+- **A concrete store, no interface.** Changing the data structure later only touches `MatchStore`, but a map keyed by the participants would collide on rematches, so it would need another design. An interface can wait until there is a second implementation.
 - **Plain `int` scores.** The total score is an `int` sum with no overflow guard, because real match scores never come near `Integer.MAX_VALUE`.
 - **`findMatch` returns `Optional`.** The caller cannot tell a finished match from one that never started, but a read does not need a checked exception, and callers who want an error can use `orElseThrow`.
 - **Checked exceptions** add handling code for callers, in exchange for compiler-enforced handling of expected errors.

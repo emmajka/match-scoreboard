@@ -465,3 +465,52 @@ Please do apply changes to code for me to review. Remember to update necessary f
 Summary:
 
 Introduced the package-private `MatchParticipants` record (normalised home and away keys, built by a validating factory, with `isPlayedBy`), removed `Match.lookupKey`, `isPair` and the score swapping, and made home and away order the caller's responsibility; padded names are now rejected and accents are ignored via `java.text.Normalizer`. Tests were rewritten first and split by operation (179 cases, all passing), and `docs/DECISIONS.md` (new #17 and #18, superseding #12, #15 and #16) and `README.md` were updated. Nothing was committed.
+
+### 36: Discussion of a storage class for matches
+Prompt:
+
+```text
+another is is with keeping in `Scoreboard` a raw arraylist as in `private final List<Match> matches = new ArrayList<>();`. What I would suggest is introducing a new class, like `ScoreboardInMemoryContainer` or something similar which would be basically handle way how the amtches are stored. It would expose only necessary api like `add` method and the logic on how does it adds a new match would be hidden from `Scoreboard`. That way also, in the future, if we plan on changing the underlying datastructure for for instance `LinkedHashMap` we would have to just switch `ScoreboardInMemoryContainer` to something else and that would be it.
+
+It might seem to be a bit of an overengineering and overcomplicating code but it might also make it better. What are Your thoughts on the topic?
+```
+
+Summary:
+
+Discussed extracting a package-private storage class for matches: what it would move out of `Scoreboard`, which methods it needs, and where the abstraction is and is not justified. No code or decision changes; the discussion continues.
+
+### 37: Extracting MatchStore
+Prompt:
+
+```text
+Extract the class, adjust and add tests, update necessary files with new decisions.
+```
+
+Summary:
+
+Extracted the package-private `MatchStore` (owns the `ArrayList`, offers `add`, `isTeamPlaying`, `findLatest`, `replaceLatest`, `inProgressNewestFirst`) and reduced `Scoreboard` to rules and summary ordering. `MatchStoreSpec` was written first (it failed against the skeleton), one `StartMatchSpec` case was added for which team is reported, and the existing specs passed unchanged; `mvn clean verify` passes with 198 tests. Added decision #19 and updated `README.md`. Nothing was committed.
+
+### 38: Discussion of injecting MatchStore and end-to-end tests
+Prompt:
+
+```text
+Open for discussion:
+
+1. make MatchStore   as a SCoreBaord cponstructor argument is we can inject it and mock it. That way Scoreboard tests could work on mocks, not caring about how does MAtchSTore implementation look like.
+2. If we follow with decision from previous point we could perhaps add something like "End-to-end" tests which would not use locks but real implementations and test whole path, multiple scenarios?
+```
+
+Summary:
+
+Discussed injecting `MatchStore` for mocking (what it would cost and why I advise against it) and adding scenario-style end-to-end tests, which are valuable independently. No code or decision changes; the discussion continues.
+
+### 39: Declining injection, mocks and scenario tests
+Prompt:
+
+```text
+perhaps let's skip it, it would be overcomplicating an initially simple task. LEt's leave it as it is.
+```
+
+Summary:
+
+Agreed to leave `Scoreboard` and the test suite as they are: no constructor injection, no mocks and no scenario spec. No code or decision changes.

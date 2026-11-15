@@ -1,6 +1,5 @@
 package pl.emmajk.scoreboard;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -12,9 +11,9 @@ import java.util.Optional;
 public final class Scoreboard {
 
     /**
-     * All matches in start order, finished ones included.
+     * All matches, finished ones included.
      */
-    private final List<Match> matches = new ArrayList<>();
+    private final MatchStore matches = new MatchStore();
 
     /**
      * Starts a match at 0-0.
@@ -26,13 +25,11 @@ public final class Scoreboard {
     public void startMatch(String homeTeam, String awayTeam) throws TeamAlreadyPlayingException {
         MatchParticipants participants = MatchParticipants.of(homeTeam, awayTeam);
 
-        for (Match match : matches) {
-            if (match.isInProgress() && match.participants().isPlayedBy(participants.homeKey())) {
-                throw new TeamAlreadyPlayingException(homeTeam);
-            }
-            if (match.isInProgress() && match.participants().isPlayedBy(participants.awayKey())) {
-                throw new TeamAlreadyPlayingException(awayTeam);
-            }
+        if (matches.isTeamPlaying(participants.homeKey())) {
+            throw new TeamAlreadyPlayingException(homeTeam);
+        }
+        if (matches.isTeamPlaying(participants.awayKey())) {
+            throw new TeamAlreadyPlayingException(awayTeam);
         }
 
         matches.add(new Match(homeTeam, awayTeam, participants, 0, 0, MatchStatus.IN_PROGRESS));
@@ -53,8 +50,8 @@ public final class Scoreboard {
             throw new IllegalArgumentException("Scores must not be negative");
         }
 
-        int index = indexOfInProgress(participants, homeTeam, awayTeam);
-        matches.set(index, matches.get(index).withScore(homeScore, awayScore));
+        Match match = findInProgress(participants, homeTeam, awayTeam);
+        matches.replaceLatest(participants, match.withScore(homeScore, awayScore));
     }
 
     /**
@@ -69,16 +66,15 @@ public final class Scoreboard {
             throws MatchNotFoundException, MatchAlreadyFinishedException {
         MatchParticipants participants = MatchParticipants.of(homeTeam, awayTeam);
 
-        int index = indexOfInProgress(participants, homeTeam, awayTeam);
-        matches.set(index, matches.get(index).finished());
+        Match match = findInProgress(participants, homeTeam, awayTeam);
+        matches.replaceLatest(participants, match.finished());
     }
 
     /**
      * Returns in-progress matches, highest total score first, ties by most recently started.
      */
     public List<MatchSummary> getSummary() {
-        return matches.reversed().stream()
-                .filter(Match::isInProgress)
+        return matches.inProgressNewestFirst().stream()
                 .sorted(Comparator.comparingInt(Match::totalScore).reversed())
                 .map(Match::toSummary)
                 .toList();
@@ -93,34 +89,23 @@ public final class Scoreboard {
     public Optional<MatchSummary> findMatch(String homeTeam, String awayTeam) {
         MatchParticipants participants = MatchParticipants.of(homeTeam, awayTeam);
 
-        return matches.reversed().stream()
-                .filter(match -> match.participants().equals(participants))
-                .findFirst()
+        return matches.findLatest(participants)
                 .filter(Match::isInProgress)
                 .map(Match::toSummary);
     }
 
     /**
-     * Returns the index of the in-progress match of the participants, or throws if there is none.
+     * Returns the in-progress match of the participants, or throws if the latest one is finished or there is none.
      */
-    private int indexOfInProgress(MatchParticipants participants, String homeTeam, String awayTeam)
+    private Match findInProgress(MatchParticipants participants, String homeTeam, String awayTeam)
             throws MatchNotFoundException, MatchAlreadyFinishedException {
-        int index = -1;
-        for (int i = matches.size() - 1; i >= 0; i--) {
-            if (matches.get(i).participants().equals(participants)) {
-                index = i;
-                break;
-            }
-        }
+        Match latest = matches.findLatest(participants)
+                .orElseThrow(() -> new MatchNotFoundException(homeTeam, awayTeam));
 
-        if (index < 0) {
-            throw new MatchNotFoundException(homeTeam, awayTeam);
-        }
-
-        if (!matches.get(index).isInProgress()) {
+        if (!latest.isInProgress()) {
             throw new MatchAlreadyFinishedException(homeTeam, awayTeam);
         }
 
-        return index;
+        return latest;
     }
 }

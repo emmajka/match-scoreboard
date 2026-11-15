@@ -102,3 +102,9 @@ A reference to a superseded decision applies to the decision that superseded it:
 - Context: Supersedes decision #16: home and away matter, and keeping them consistent is the caller's responsibility.
 - Decision: A match is addressed by its `MatchParticipants`, the ordered pair of normalised home and away names (per decision #17), and the scores of `updateScore` are positional. A team can be in at most one in-progress match as home or away team, and a finished pair can be started again, also with swapped teams (per decision #1).
 - Consequences: A swapped pair is another match, so `updateScore` and `finishMatch` throw `MatchNotFoundException` for it and `findMatch` returns empty. Decisions #7, #10 and #13 apply unchanged.
+
+## 19. Keep match storage behind a package-private store
+- Status: accepted
+- Context: `Scoreboard` repeated the backward scan and used list indices (per decision #13).
+- Decision: `MatchStore` owns the `ArrayList` and offers `add`, `isTeamPlaying`, `findLatest`, `replaceLatest` and `inProgressNewestFirst`, while `Scoreboard` keeps the rules and the summary order. It is a concrete class without an interface, and `replaceLatest` replaces the latest match of the participants, never one found by equality.
+- Consequences: Another data structure only changes `MatchStore`, although a map keyed by participants would collide on rematches. An interface waits for a second implementation.

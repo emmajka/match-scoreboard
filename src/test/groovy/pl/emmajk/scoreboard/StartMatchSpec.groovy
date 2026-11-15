@@ -123,4 +123,17 @@ class StartMatchSpec extends Specification {
         "Spain"   | "Germany"
         "Germany" | "Spain"
     }
+
+    def "given both teams already playing when calling startMatch then should report the home team"() {
+        given:
+        scoreboard.startMatch("Germany", "Argentina")
+        scoreboard.startMatch("Spain", "Brazil")
+
+        when:
+        scoreboard.startMatch("Spain", "Germany")
+
+        then:
+        def exception = thrown(TeamAlreadyPlayingException)
+        exception.message.contains("Spain")
+    }
 }
