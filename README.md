@@ -17,7 +17,7 @@ Optional<MatchSummary> match = scoreboard.findMatch("mexico", "canada"); // same
 scoreboard.finishMatch("Mexico", "Canada");
 ```
 
-The classes are in the package `pl.emmajk.scoreboard`. `startMatch`, `updateScore` and `finishMatch` declare checked exceptions. The example scenario from the task is covered by a test in `ScoreboardSpec`.
+The classes are in the package `pl.emmajk.scoreboard`. `startMatch`, `updateScore` and `finishMatch` declare checked exceptions. Home and away must be given in the order of the start. The example scenario from the task is covered by a test in `GetSummarySpec`.
 
 ## Build
 
@@ -54,14 +54,10 @@ The project needs JDK 25 and Maven. `mvn clean verify` compiles the library and 
 
 ## Trade-offs
 
-- **Memory grows.** Finished matches are never removed. This is fine for a tournament, not for a long-running service.
-- **Linear lookups.** Finding a match scans the list, which is fast enough for this size.
-- **A concrete store, no interface.** Changing the data structure later only touches `MatchStore`, but a map keyed by the participants would collide on rematches, so it would need another design. An interface can wait until there is a second implementation.
+- **Memory and lookups.** Finished matches are never removed and finding a match scans the list. Both are fine for a tournament, not for a long-running service.
+- **Internal types.** The store is a concrete class without an interface, so changing the data structure later only touches `MatchStore`, but a map keyed by the participants would collide on rematches and would need another design. A match keeps the names as given and their normalised participants, and the public summary is a separate record without the status. This costs a little memory and code, and it avoids normalising on every scan and exposing internals.
+- **Caller-owned order and `findMatch`.** `findMatch` returns an empty `Optional` for swapped teams, for a finished match and for a match that never started, so the caller cannot tell them apart, while updates and finishes throw. A read does not need a checked exception, and callers who want an error can use `orElseThrow`.
 - **Plain `int` scores.** The total score is an `int` sum with no overflow guard, because real match scores never come near `Integer.MAX_VALUE`.
-- **`findMatch` returns `Optional`.** The caller cannot tell a finished match from one that never started, but a read does not need a checked exception, and callers who want an error can use `orElseThrow`.
 - **Checked exceptions** add handling code for callers, in exchange for compiler-enforced handling of expected errors.
-- **Caller-owned order.** `findMatch` returns an empty result for swapped teams, which looks the same as "not playing", while updates and finishes throw.
-- **Redundant state.** A match keeps the names as given and their normalised participants. This costs a little memory and avoids normalising on every scan.
 - **Simple name normalisation** (lower case and accents) does not fold letters without a decomposition (`ł`, `ø`, `đ`, `ß`), alternative names ("USA" and "United States"), or repeated inner spaces. Whitespace is judged by `strip()`, so a non-breaking space at the edge is not detected and such a name is accepted.
 - **No thread-safety** keeps the code simple but leaves synchronisation to callers.
-- **Two types for a match** (internal with status, public without) cost a little code and keep the internals hidden.

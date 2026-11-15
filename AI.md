@@ -514,3 +514,27 @@ perhaps let's skip it, it would be overcomplicating an initially simple task. LE
 Summary:
 
 Agreed to leave `Scoreboard` and the test suite as they are: no constructor injection, no mocks and no scenario spec. No code or decision changes.
+
+### 40: Review against the task and of the documentation files
+Prompt:
+
+```text
+Let's review our implementation against the task description. Try to find missing parts, analyze for logical flaws, potential bugs, possible simplifications that could be made.
+
+Also please do analyze contents of decisions.md, readme.md, claude.md, can those be somewhat simplified, require changes or pehaps we could add something to them  at the very end.
+```
+
+Summary:
+
+Reviewed the implementation, tests and git history against the task, and reviewed `docs/DECISIONS.md`, `README.md` and `CLAUDE.md`. Found no missing requirement and no functional bug, but a stale README test reference, two undocumented private methods, and several documentation and rule improvements. No files other than `AI.md` were changed.
+
+### 41: Applying the review findings and README changes
+Prompt:
+
+```text
+fix #2 Flaws and findings, #5 README.md and that's it. Apply changes, let me review it
+```
+
+Summary:
+
+Fixed the review findings: added Javadoc to two private methods, corrected the `MatchSummary` and `getSummary` Javadoc, and added `serialVersionUID` to the three exceptions. In `README.md` fixed the stale `ScoreboardSpec` reference, added the home and away order note, trimmed the trade-offs from 11 to 7, and added Project structure, Testing and Possible extensions sections. `mvn clean verify` passes with 198 tests and `javac -Xlint:all` is clean. Nothing was committed.

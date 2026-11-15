@@ -54,6 +54,9 @@ record MatchParticipants(String homeKey, String awayKey) {
         return COMBINING_MARKS.matcher(decomposed).replaceAll("");
     }
 
+    /**
+     * Tells whether the name starts or ends with whitespace, as {@link String#strip()} defines it.
+     */
     private static boolean hasSurroundingWhitespace(String teamName) {
         return !teamName.equals(teamName.strip());
     }

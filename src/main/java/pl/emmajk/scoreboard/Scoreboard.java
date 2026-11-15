@@ -71,7 +71,7 @@ public final class Scoreboard {
     }
 
     /**
-     * Returns in-progress matches, highest total score first, ties by most recently started.
+     * Returns an unmodifiable list of in-progress matches, highest total score first, ties by most recently started.
      */
     public List<MatchSummary> getSummary() {
         return matches.inProgressNewestFirst().stream()

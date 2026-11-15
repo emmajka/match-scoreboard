@@ -62,6 +62,9 @@ final class MatchStore {
                 .toList();
     }
 
+    /**
+     * Returns the index of the latest match of the participants, or -1 if there is none.
+     */
     private int indexOfLatest(MatchParticipants participants) {
         for (int i = matches.size() - 1; i >= 0; i--) {
             if (matches.get(i).participants().equals(participants)) {
