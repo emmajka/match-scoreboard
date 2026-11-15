@@ -14,10 +14,10 @@ class FindMatchSpec extends Specification {
         thrown(exception)
 
         where:
-        [home, away, exception] << InvalidTeamNames.PAIRS
+        [description, home, away, exception] << InvalidTeamNames.REPRESENTATIVE
     }
 
-    def "given an empty scoreboard when calling findMatch should return an empty result"() {
+    def "given an empty scoreboard when calling findMatch then should return an empty result"() {
         expect:
         scoreboard.findMatch("Spain", "Brazil").isEmpty()
     }
@@ -49,10 +49,9 @@ class FindMatchSpec extends Specification {
         home    | away
         "Spain" | "Brazil"
         "spain" | "BRAZIL"
-        "SPAIN" | "brazil"
     }
 
-    def "given a started match when calling findMatch should return it at 0-0 with the names as given"() {
+    def "given a started match when calling findMatch then should return it at 0-0 with the names as given"() {
         given:
         scoreboard.startMatch("Spain", "BRAZIL")
 
@@ -60,7 +59,7 @@ class FindMatchSpec extends Specification {
         scoreboard.findMatch("spain", "brazil").get() == new MatchSummary("Spain", "BRAZIL", 0, 0)
     }
 
-    def "given an accented team name when calling findMatch with the plain spelling should find the match"() {
+    def "given an accented team name when calling findMatch with the plain spelling then should find the match"() {
         given:
         scoreboard.startMatch("Côte d'Ivoire", "Cameroon")
 
@@ -68,7 +67,7 @@ class FindMatchSpec extends Specification {
         scoreboard.findMatch("Cote d'Ivoire", "Cameroon").get() == new MatchSummary("Côte d'Ivoire", "Cameroon", 0, 0)
     }
 
-    def "given several matches when calling findMatch should return the one of the pair"() {
+    def "given several matches when calling findMatch then should return the one of the pair"() {
         given:
         scoreboard.startMatch("Mexico", "Canada")
         scoreboard.startMatch("Spain", "Brazil")
@@ -80,7 +79,7 @@ class FindMatchSpec extends Specification {
         scoreboard.findMatch("Spain", "Brazil").get() == new MatchSummary("Spain", "Brazil", 10, 2)
     }
 
-    def "given a finished match when calling findMatch should return an empty result"() {
+    def "given a finished match when calling findMatch then should return an empty result"() {
         given:
         scoreboard.startMatch("Spain", "Brazil")
         scoreboard.finishMatch("Spain", "Brazil")
@@ -89,7 +88,7 @@ class FindMatchSpec extends Specification {
         scoreboard.findMatch("Spain", "Brazil").isEmpty()
     }
 
-    def "given a finished pair and another match of its team when calling findMatch should return an empty result"() {
+    def "given a finished pair and another match of its team when calling findMatch then should return an empty result"() {
         given:
         scoreboard.startMatch("Spain", "Brazil")
         scoreboard.finishMatch("Spain", "Brazil")
@@ -99,7 +98,7 @@ class FindMatchSpec extends Specification {
         scoreboard.findMatch("Spain", "Brazil").isEmpty()
     }
 
-    def "given a finished pair started again when calling findMatch should return the new match"() {
+    def "given a finished pair started again when calling findMatch then should return the new match"() {
         given:
         scoreboard.startMatch("Spain", "Brazil")
         scoreboard.updateScore("Spain", "Brazil", 3, 0)
@@ -110,7 +109,7 @@ class FindMatchSpec extends Specification {
         scoreboard.findMatch("Spain", "Brazil").get() == new MatchSummary("Spain", "Brazil", 0, 0)
     }
 
-    def "given a finished pair started again with swapped teams when calling findMatch should find it only in the new order"() {
+    def "given a finished pair started again with swapped teams when calling findMatch then should find it only in the new order"() {
         given:
         scoreboard.startMatch("Spain", "Germany")
         scoreboard.finishMatch("Spain", "Germany")

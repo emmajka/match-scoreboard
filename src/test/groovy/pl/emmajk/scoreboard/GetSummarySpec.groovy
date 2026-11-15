@@ -6,20 +6,12 @@ class GetSummarySpec extends Specification {
 
     Scoreboard scoreboard = new Scoreboard()
 
-    def "given an empty scoreboard when calling getSummary should return an empty list"() {
+    def "given an empty scoreboard when calling getSummary then should return an empty list"() {
         expect:
         scoreboard.getSummary() == []
     }
 
-    def "given a started match when calling getSummary should return it at 0-0 with the names as given"() {
-        given:
-        scoreboard.startMatch("Spain", "BRAZIL")
-
-        expect:
-        scoreboard.getSummary() == [new MatchSummary("Spain", "BRAZIL", 0, 0)]
-    }
-
-    def "given the task example scenario when calling getSummary should return the expected order"() {
+    def "given the task example scenario when calling getSummary then should return the expected order"() {
         given:
         scoreboard.startMatch("Mexico", "Canada")
         scoreboard.startMatch("Spain", "Brazil")
@@ -42,7 +34,7 @@ class GetSummarySpec extends Specification {
         ]
     }
 
-    def "given matches with equal scores when calling getSummary should return the most recently started first"() {
+    def "given matches with equal scores when calling getSummary then should return the most recently started first"() {
         given:
         scoreboard.startMatch("Mexico", "Canada")
         scoreboard.startMatch("Spain", "Brazil")
@@ -52,7 +44,7 @@ class GetSummarySpec extends Specification {
         scoreboard.getSummary()*.homeTeam == ["Germany", "Spain", "Mexico"]
     }
 
-    def "given tied matches updated in another order when calling getSummary should keep the start order"() {
+    def "given tied matches updated in another order when calling getSummary then should keep the start order"() {
         given:
         scoreboard.startMatch("Mexico", "Canada")
         scoreboard.startMatch("Spain", "Brazil")
@@ -63,7 +55,7 @@ class GetSummarySpec extends Specification {
         scoreboard.getSummary()*.homeTeam == ["Spain", "Mexico"]
     }
 
-    def "given a lowered score when calling getSummary should order by the new total"() {
+    def "given a lowered score when calling getSummary then should order by the new total"() {
         given:
         scoreboard.startMatch("Mexico", "Canada")
         scoreboard.startMatch("Spain", "Brazil")
@@ -75,7 +67,7 @@ class GetSummarySpec extends Specification {
         scoreboard.getSummary()*.homeTeam == ["Mexico", "Spain"]
     }
 
-    def "given a finished match when calling getSummary should not return it"() {
+    def "given a finished match when calling getSummary then should not return it"() {
         given:
         scoreboard.startMatch("Spain", "Brazil")
         scoreboard.startMatch("Mexico", "Canada")
@@ -86,18 +78,7 @@ class GetSummarySpec extends Specification {
         scoreboard.getSummary() == [new MatchSummary("Mexico", "Canada", 0, 0)]
     }
 
-    def "given a finished pair started again when calling getSummary should return only the new match"() {
-        given:
-        scoreboard.startMatch("Spain", "Brazil")
-        scoreboard.updateScore("Spain", "Brazil", 3, 0)
-        scoreboard.finishMatch("Spain", "Brazil")
-        scoreboard.startMatch("Spain", "Brazil")
-
-        expect:
-        scoreboard.getSummary() == [new MatchSummary("Spain", "Brazil", 0, 0)]
-    }
-
-    def "given a returned summary when updating a score should not change that summary"() {
+    def "given a returned summary when updating a score then should not change that summary"() {
         given:
         scoreboard.startMatch("Spain", "Brazil")
         def summary = scoreboard.getSummary()

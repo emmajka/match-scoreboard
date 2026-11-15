@@ -12,7 +12,12 @@ class MatchParticipantsSpec extends Specification {
         thrown(exception)
 
         where:
-        [home, away, exception] << InvalidTeamNames.PAIRS
+        [description, home, away, exception] << InvalidTeamNames.PAIRS
+    }
+
+    def "given a name padded with a non-breaking space when calling of then should accept it as not padded"() {
+        expect:
+        MatchParticipants.of(InvalidTeamNames.NO_BREAK_SPACE + "Spain", "Brazil").awayKey() == "brazil"
     }
 
     def "of - dataset tests - normalised keys"() {
@@ -25,14 +30,14 @@ class MatchParticipantsSpec extends Specification {
         "SPAIN"           | "spain"
         "gErmany"         | "germany"
         "Côte d'Ivoire"   | "cote d'ivoire"
-        "Côte"      | "cote"
+        "Co" + InvalidTeamNames.COMBINING_CIRCUMFLEX + "te" | "cote"
         "Türkiye"         | "turkiye"
         "Curaçao"         | "curacao"
         "İstanbul"        | "istanbul"
         "Łódź"            | "łodz"
     }
 
-    def "given the away name when calling of should normalise it as well"() {
+    def "given the away name when calling of then should normalise it as well"() {
         expect:
         MatchParticipants.of("Spain", "BRAZİL").awayKey() == "brazil"
     }

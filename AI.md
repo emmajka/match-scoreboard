@@ -538,3 +538,25 @@ fix #2 Flaws and findings, #5 README.md and that's it. Apply changes, let me rev
 Summary:
 
 Fixed the review findings: added Javadoc to two private methods, corrected the `MatchSummary` and `getSummary` Javadoc, and added `serialVersionUID` to the three exceptions. In `README.md` fixed the stale `ScoreboardSpec` reference, added the home and away order note, trimmed the trade-offs from 11 to 7, and added Project structure, Testing and Possible extensions sections. `mvn clean verify` passes with 198 tests and `javac -Xlint:all` is clean. Nothing was committed.
+
+### 42: Review of the tests
+Prompt:
+
+```text
+Review and analyze tests against real code, try to find potential duplicates, unnecessary/useless tests, missed cases, cases which are actually never capable of happening. Review also standards of tests.
+```
+
+Summary:
+
+Reviewed all specs against the code, ran 20 hand-made mutations on a scratch copy (18 killed, one real gap, one equivalent mutant) and checked the tests against the `CLAUDE.md` standards. Listed duplicates, impossible or unrealistic cases, missing cases and standards fixes. No files other than `AI.md` were changed.
+
+### 43: Applying the test review
+Prompt:
+
+```text
+Apply recommended
+```
+
+Summary:
+
+Applied the test review: removed three duplicate tests, the impossible equal-twins store test and one unrealistic store row, and thinned the operation specs' invalid-name datasets to a representative subset while `MatchParticipantsSpec` keeps the full list. Added the away-team exception, null-precedence, tab-and-newline padding, non-breaking-space and `finishMatch` accent cases, descriptions in the dataset rows, "then should" in every test name, and named constants for invisible characters. The suite went from 198 to 160 cases, all passing, and every mutation except the equivalent one is caught. Nothing was committed.

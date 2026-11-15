@@ -17,7 +17,7 @@ class FinishMatchSpec extends Specification {
         thrown(exception)
 
         where:
-        [home, away, exception] << InvalidTeamNames.PAIRS
+        [description, home, away, exception] << InvalidTeamNames.REPRESENTATIVE
     }
 
     def "given an empty scoreboard when calling finishMatch then should throw a MatchNotFoundException"() {
@@ -60,7 +60,17 @@ class FinishMatchSpec extends Specification {
         home    | away
         "Spain" | "Brazil"
         "spain" | "BRAZIL"
-        "SPAIN" | "brazil"
+    }
+
+    def "given an accented team name when calling finishMatch with the plain spelling then should finish the match"() {
+        given:
+        scoreboard.startMatch("Côte d'Ivoire", "Cameroon")
+
+        when:
+        scoreboard.finishMatch("Cote d'Ivoire", "cameroon")
+
+        then:
+        scoreboard.getSummary() == []
     }
 
     def "given an already finished match when calling finishMatch then should throw a MatchAlreadyFinishedException"() {
@@ -88,7 +98,7 @@ class FinishMatchSpec extends Specification {
         thrown(MatchAlreadyFinishedException)
     }
 
-    def "given two matches when calling finishMatch should keep the other match in progress"() {
+    def "given two matches when calling finishMatch then should keep the other match in progress"() {
         given:
         scoreboard.startMatch("Spain", "Brazil")
         scoreboard.startMatch("Germany", "France")
@@ -100,7 +110,7 @@ class FinishMatchSpec extends Specification {
         scoreboard.getSummary() == [new MatchSummary("Germany", "France", 0, 0)]
     }
 
-    def "given a finished pair started again with swapped teams when calling finishMatch in the new order should finish the new match"() {
+    def "given a finished pair started again with swapped teams when calling finishMatch in the new order then should finish the new match"() {
         given:
         scoreboard.startMatch("Spain", "Germany")
         scoreboard.finishMatch("Spain", "Germany")
