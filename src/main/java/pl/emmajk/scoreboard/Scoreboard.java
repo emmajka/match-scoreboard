@@ -13,7 +13,7 @@ public final class Scoreboard {
     /**
      * All matches, finished ones included.
      */
-    private final MatchStore matches = new MatchStore();
+    private final MatchStore matchStore = new MatchStore();
 
     /**
      * Starts a match at 0-0.
@@ -25,14 +25,14 @@ public final class Scoreboard {
     public void startMatch(String homeTeam, String awayTeam) throws TeamAlreadyPlayingException {
         MatchParticipants participants = MatchParticipants.of(homeTeam, awayTeam);
 
-        if (matches.isTeamPlaying(participants.homeKey())) {
+        if (matchStore.isTeamPlaying(participants.homeKey())) {
             throw new TeamAlreadyPlayingException(homeTeam);
         }
-        if (matches.isTeamPlaying(participants.awayKey())) {
+        if (matchStore.isTeamPlaying(participants.awayKey())) {
             throw new TeamAlreadyPlayingException(awayTeam);
         }
 
-        matches.add(new Match(homeTeam, awayTeam, participants, 0, 0, MatchStatus.IN_PROGRESS));
+        matchStore.add(new Match(homeTeam, awayTeam, participants, 0, 0, MatchStatus.IN_PROGRESS));
     }
 
     /**
@@ -51,7 +51,7 @@ public final class Scoreboard {
         }
 
         Match match = findInProgress(participants, homeTeam, awayTeam);
-        matches.replaceLatest(participants, match.withScore(homeScore, awayScore));
+        matchStore.replaceLatest(participants, match.withScore(homeScore, awayScore));
     }
 
     /**
@@ -67,14 +67,14 @@ public final class Scoreboard {
         MatchParticipants participants = MatchParticipants.of(homeTeam, awayTeam);
 
         Match match = findInProgress(participants, homeTeam, awayTeam);
-        matches.replaceLatest(participants, match.finished());
+        matchStore.replaceLatest(participants, match.finished());
     }
 
     /**
      * Returns an unmodifiable list of in-progress matches, highest total score first, ties by most recently started.
      */
     public List<MatchSummary> getSummary() {
-        return matches.inProgressNewestFirst().stream()
+        return matchStore.inProgressNewestFirst().stream()
                 .sorted(Comparator.comparingInt(Match::totalScore).reversed())
                 .map(Match::toSummary)
                 .toList();
@@ -89,7 +89,7 @@ public final class Scoreboard {
     public Optional<MatchSummary> findMatch(String homeTeam, String awayTeam) {
         MatchParticipants participants = MatchParticipants.of(homeTeam, awayTeam);
 
-        return matches.findLatest(participants)
+        return matchStore.findLatest(participants)
                 .filter(Match::isInProgress)
                 .map(Match::toSummary);
     }
@@ -99,7 +99,7 @@ public final class Scoreboard {
      */
     private Match findInProgress(MatchParticipants participants, String homeTeam, String awayTeam)
             throws MatchNotFoundException, MatchAlreadyFinishedException {
-        Match latest = matches.findLatest(participants)
+        Match latest = matchStore.findLatest(participants)
                 .orElseThrow(() -> new MatchNotFoundException(homeTeam, awayTeam));
 
         if (!latest.isInProgress()) {
